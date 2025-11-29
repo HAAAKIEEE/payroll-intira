@@ -164,18 +164,18 @@ class PayrollPieceImport implements ToCollection
                 // ========================
                 // STEP 5: Cek duplikasi berdasarkan user_branche_id, period, kategori, keterangan
                 // ========================
-                $existingPiece = PayrollPiece::where('user_branche_id', $userBranche->id)
-                    ->where('periode', $this->selectedPeriode)
-                    ->where('kategori', $kategori)
-                    ->where('keterangan', $keterangan)
-                    ->first();
+                // $existingPiece = PayrollPiece::where('user_branche_id', $userBranche->id)
+                //     ->where('periode', $this->selectedPeriode)
+                //     ->where('kategori', $kategori)
+                //     ->where('keterangan', $keterangan)
+                //     ->first();
 
-                if ($existingPiece) {
-                    $this->skipped++;
-                    $this->errors[] = "Baris $rowNumber: Data piece untuk NIK '$nikExcel' dengan kategori '$kategori' dan keterangan '$keterangan' di periode '{$this->selectedPeriode}' sudah ada.";
-                    Log::info("Data sudah ada, skip baris $rowNumber");
-                    continue;
-                }
+                // if ($existingPiece) {
+                //     $this->skipped++;
+                //     $this->errors[] = "Baris $rowNumber: Data piece untuk NIK '$nikExcel' dengan kategori '$kategori' dan keterangan '$keterangan' di periode '{$this->selectedPeriode}' sudah ada.";
+                //     Log::info("Data sudah ada, skip baris $rowNumber");
+                //     continue;
+                // }
 
                 // ========================
                 // STEP 6: Simpan PayrollPiece

@@ -4,8 +4,8 @@
     <div class="text-center mb-6 pb-4 border-b-2 border-green-500">
         <img src="{{ asset('img/logo.png') }}" alt="Company Logo" class="w-25 mx-auto mb-2">
         <h1 class="font-bold text-xl text-gray-800">PT SOLUSI INTIRA SEJAHTERA</h1>
-        <p class="text-sm text-gray-600">Head Office Jl. Kompleks Agraria II No.045 RT.025 RW.003</p>
-        <p class="text-sm text-gray-600">Kel. Telaga Biru, Kec. Banjarmasin Barat</p>
+        <p class="text-sm text-gray-600">Head Office Jl. Adhyaksa No.018 RT.026 RW.001</p>
+        <p class="text-sm text-gray-600">Kel. Banjarmain, Kec. Banjarmasin Utara</p>
         <p class="text-sm text-gray-600">Kota Banjarmasin, Kalimantan Selatan</p>
     </div>
 
@@ -94,6 +94,7 @@
         <table class="w-full text-sm mt-3 border border-gray-300">
             <thead class="bg-green-100 font-semibold text-gray-800">
                 <tr>
+                    <th class="py-3 px-3 text-left border border-gray-300">Tanggal</th>
                     <th class="py-3 px-3 text-left border border-gray-300">Kategori</th>
                     <th class="py-3 px-3 text-right border border-gray-300">Kesejahteraan</th>
                     <th class="py-3 px-3 text-right border border-gray-300">Komunikasi</th>
@@ -118,6 +119,7 @@
                         $totalPotongan += $piece->potongan ?? 0;
                     @endphp
                     <tr class="hover:bg-gray-50">
+                        <td class="py-2 px-3 border border-gray-300">{{ $piece->tanggal ?? '-' }}</td>
                         <td class="py-2 px-3 border border-gray-300">{{ $piece->kategori ?? '-' }}</td>
                         <td class="py-2 px-3 text-right border border-gray-300">
                             {{ $piece->kesejahteraan ? number_format($piece->kesejahteraan, 0, ',', '.') : '-' }}
@@ -137,6 +139,8 @@
 
                 {{-- Total Row --}}
                 <tr class="bg-green-50 font-bold border-t-2 border-green-300">
+                    <td class="py-3 px-3 border border-gray-300 text-gray-800"></td>
+
                     <td class="py-3 px-3 border border-gray-300 text-gray-800">TOTAL</td>
                     <td class="py-3 px-3 text-right border border-gray-300 text-gray-800">
                         {{ number_format($totalKesejahteraan, 0, ',', '.') }}
@@ -160,7 +164,7 @@
         <p class="text-gray-700 mb-1">Banjarmasin, {{ now()->isoFormat('D MMMM Y') }}</p>
         <br><br><br>
         {{-- <img src="/signature.png" class="w-32 mx-auto"> --}}
-        <p class="font-semibold text-gray-800">ACIA RISKI YUSPIHANI</p>
+        <p class="font-semibold text-gray-800">AULIA RISKI YUSPIHANI YUSRAN</p>
         <p class="text-sm text-gray-600">HO SDM</p>
     </div>
 
