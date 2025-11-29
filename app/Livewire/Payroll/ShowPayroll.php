@@ -30,12 +30,12 @@ class ShowPayroll extends Component
             ->first();
 
         // ========================
-        // PERBAIKAN: Ambil pieces berdasarkan user_branche_id dan period
+        // PERBAIKAN: Ambil pieces berdasarkan user_branche_id dan periode
         // Karena PayrollPiece tidak lagi punya payroll_id
         // ========================
         if ($this->payroll) {
             $this->pieces = PayrollPiece::where('user_branche_id', $this->payroll->user_branche_id)
-                ->where('period', $this->payroll->period)
+                ->where('periode', $this->payroll->periode)
                 ->orderBy('tanggal', 'asc')
                 ->orderBy('kategori', 'asc')
                 ->get();

@@ -118,6 +118,7 @@
                 <th class="px-4 py-2 text-right text-sm font-semibold">Makan</th>
                 <th class="px-4 py-2 text-right text-sm font-semibold">Tunjangan</th>
                 <th class="px-4 py-2 text-right text-sm font-semibold">Bonus</th>
+                <th class="px-4 py-2 text-right text-sm font-semibold">Simpanan</th>
                 <th class="px-4 py-2 text-right text-sm font-semibold">Potongan</th>
                 <th class="px-4 py-2 text-right text-sm font-semibold">Total</th>
             </tr>
@@ -134,6 +135,7 @@
                 <td class="px-4 py-2 text-right">{{ number_format($p->makan, 0, ',', '.') }}</td>
                 <td class="px-4 py-2 text-right">{{ number_format($p->tunjangan, 0, ',', '.') }}</td>
                 <td class="px-4 py-2 text-right">{{ number_format($p->bonus_revenue, 0, ',', '.') }}</td>
+                <td class="px-4 py-2 text-right text-red-500">{{ number_format($p->simpanan, 0, ',', '.') }}</td>
                 <td class="px-4 py-2 text-right text-red-500">{{ number_format($p->potongan, 0, ',', '.') }}</td>
                 <td class="px-4 py-2 text-right font-semibold">{{ number_format($p->total, 0, ',', '.') }}</td>
             </tr>

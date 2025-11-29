@@ -11,136 +11,114 @@ use App\Models\UserBranche;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserManage extends Component
 {
     use WithPagination;
+
+    // Search & Filter
+    public $search = '';
+
+    // Quick Assign Properties
     public $quickAssignUserId;
     public $selectedEmployee;
     public $selectedBranch;
     public $selectedRole;
-
-    public $employees = [];
-    public $branches = [];
-    public $roles = [];
     public $showQuickAssignModal = false;
 
+    // Form Properties - User
+    public $name, $username, $password, $user_role;
 
-    public $search = '';
-    // Form properties untuk assign branch
-    public $selected_user_id, $selected_branch_id, $selected_role;
-    public $start_at, $end_at, $is_active = true;
-
-    // Form properties untuk tambah user baru
-    public $name, $username, $password;
+    // Form Properties - Employee
     public $full_name, $employee_code, $position, $hire_date;
     public $grade, $address, $years_of_service = 0, $education;
     public $account_number, $npwp_number, $nik;
-    public $branch_id, $role, $assignment_start_at;
 
-    // Modal states
-    public $showAssignModal = false;
+    // Form Properties - Assignment
+    public $branch_id, $assignment_role, $assignment_start_at;
+
+    // Modal States
     public $showUserModal = false;
     public $showUnassignedUsers = false;
     public $showUnassignedEmployees = false;
+
+    // Dropdown Data
+    public $employees = [];
+    public $branches = [];
+    public $roles = [];
+
+    public function mount()
+    {
+        $this->loadDropdownData();
+    }
+
+    private function loadDropdownData()
+    {
+        $this->branches = Branch::all();
+        $this->roles = Role::all();
+        $this->employees = Employee::whereDoesntHave('user')->get();
+    }
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
+    // ===== QUICK ASSIGN =====
     public function openQuickAssign($userId)
     {
         $this->quickAssignUserId = $userId;
         $this->showQuickAssignModal = true;
-
-        // Ambil data employee yang belum terhubung
-        $this->employees = Employee::whereDoesntHave('user')->get();
-
-        // Ambil branch & role
-        $this->branches = Branch::all();
-        $this->roles = Role::all();
+        $this->loadDropdownData();
     }
 
     public function saveQuickAssign()
     {
         $this->validate([
-            'selectedEmployee' => 'required',
-            'selectedBranch' => 'required',
-            'selectedRole' => 'required',
+            'selectedEmployee' => 'required|exists:employees,id',
+            'selectedBranch' => 'required|exists:branches,id',
+            'selectedRole' => 'required|exists:roles,name',
         ]);
 
-        // Update employee -> set user_id
-        // Employee::where('id', $this->selectedEmployee)
-        //     ->update([
-        //         'user_id' => $this->quickAssignUserId
-        //     ]);
+        try {
+            DB::beginTransaction();
+
+            // Link user ke employee
             User::where('id', $this->quickAssignUserId)
-    ->update([
-        'employee_id' => $this->selectedEmployee
-    ]);
+                ->update(['employee_id' => $this->selectedEmployee]);
 
-
-        // Insert ke tabel user_branche
-        UserBranche::create([
-            'user_id' => $this->quickAssignUserId,
-            'branches_id' => $this->selectedBranch,
-            'role' => $this->selectedRole,
-            'is_active' => true,
-            'start_at' => now(),
-        ]);
-
-        $this->reset(['showQuickAssignModal']);
-        session()->flash('message', 'User berhasil di-assign.');
-    }
-
-
-    protected function rules()
-    {
-        $rules = [
-            'selected_user_id' => 'required|exists:users,id',
-            'selected_branch_id' => 'required|exists:branches,id',
-            'selected_role' => 'required|string',
-            'start_at' => 'required|date',
-            'end_at' => 'nullable|date|after:start_at',
-        ];
-
-        // Rules untuk tambah user baru
-        if ($this->showUserModal) {
-            $rules = array_merge($rules, [
-                'name' => 'required|string|max:255',
-                'username' => 'required|string|unique:users,username|max:255',
-                'password' => 'required|min:6',
-                'full_name' => 'required|string|max:255',
-                'employee_code' => 'required|string|unique:employees,employee_code',
-                'position' => 'nullable|string',
-                'hire_date' => 'nullable|date',
-                'grade' => 'nullable|string',
-                'address' => 'nullable|string',
-                'years_of_service' => 'nullable|integer|min:0',
-                'education' => 'nullable|string',
-                'account_number' => 'nullable|string|max:30',
-                'npwp_number' => 'nullable|string|max:30',
-                'nik' => 'nullable|string|max:30',
-                'branch_id' => 'required|exists:branches,id',
-                'role' => 'required|string',
-                'assignment_start_at' => 'required|date',
+            // Create assignment
+            UserBranche::create([
+                'user_id' => $this->quickAssignUserId,
+                'branches_id' => $this->selectedBranch,
+                'role' => $this->selectedRole,
+                'is_active' => true,
+                'start_at' => now(),
             ]);
+
+            DB::commit();
+            session()->flash('message', 'User berhasil di-assign.');
+            $this->closeQuickAssignModal();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error quick assign: ' . $e->getMessage());
+            session()->flash('error', 'Error: ' . $e->getMessage());
         }
-
-        return $rules;
     }
 
-    public function openAssignModal()
+    private function closeQuickAssignModal()
     {
-        $this->resetAssignForm();
-        $this->showAssignModal = true;
+        $this->showQuickAssignModal = false;
+        $this->reset(['quickAssignUserId', 'selectedEmployee', 'selectedBranch', 'selectedRole']);
     }
 
-    public function closeAssignModal()
-    {
-        $this->showAssignModal = false;
-        $this->resetAssignForm();
-    }
-
+    // ===== USER MODAL =====
     public function openUserModal()
     {
         $this->resetUserForm();
         $this->showUserModal = true;
+        $this->loadDropdownData();
     }
 
     public function closeUserModal()
@@ -151,7 +129,36 @@ class UserManage extends Component
 
     public function saveUser()
     {
-        $this->validate();
+        // Log untuk debugging
+        Log::info('Attempting to save user', [
+            'name' => $this->name,
+            'username' => $this->username,
+            'employee_code' => $this->employee_code,
+        ]);
+
+        // Validasi
+        $validated = $this->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|unique:users,username|max:255',
+            'password' => 'required|min:6',
+            'user_role' => 'required|string|exists:roles,name',
+            
+            'full_name' => 'required|string|max:255',
+            'employee_code' => 'required|string|unique:employees,employee_code',
+            'position' => 'nullable|string',
+            'hire_date' => 'nullable|date',
+            'grade' => 'nullable|string',
+            'address' => 'nullable|string',
+            'years_of_service' => 'nullable|integer|min:0',
+            'education' => 'nullable|string',
+            'account_number' => 'nullable|string|max:30',
+            'npwp_number' => 'nullable|string|max:30',
+            'nik' => 'nullable|string|max:30',
+            
+            'branch_id' => 'required|exists:branches,id',
+            'assignment_role' => 'required|string|exists:roles,name',
+            'assignment_start_at' => 'required|date',
+        ]);
 
         try {
             DB::beginTransaction();
@@ -172,6 +179,8 @@ class UserManage extends Component
                 'is_active' => true,
             ]);
 
+            Log::info('Employee created', ['id' => $employee->id]);
+
             // 2. Create User
             $user = User::create([
                 'name' => $this->name,
@@ -179,117 +188,119 @@ class UserManage extends Component
                 'password' => Hash::make($this->password),
                 'employee_id' => $employee->id,
             ]);
-            $user->assignRole($this->role);
-            // 3. Assign to Branch (create UserBranche)
-            UserBranche::create([
+
+            Log::info('User created', ['id' => $user->id]);
+
+            // 3. Assign Role
+            $user->assignRole($this->user_role);
+            Log::info('Role assigned', ['role' => $this->user_role]);
+
+            // 4. Create UserBranche
+            $userBranch = UserBranche::create([
                 'user_id' => $user->id,
                 'branches_id' => $this->branch_id,
-                'role' => $this->role,
+                'role' => $this->assignment_role,
                 'start_at' => $this->assignment_start_at,
                 'is_active' => true,
             ]);
+
+            Log::info('UserBranche created', ['id' => $userBranch->id]);
 
             DB::commit();
 
             session()->flash('message', 'User, Employee, dan Assignment berhasil dibuat!');
             $this->closeUserModal();
             $this->resetPage();
+            
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('message', 'Error: ' . $e->getMessage());
+            
+            Log::error('Error creating user:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            session()->flash('error', 'Gagal menyimpan data: ' . $e->getMessage());
         }
     }
 
+    private function resetUserForm()
+    {
+        $this->reset([
+            'name', 'username', 'password', 'user_role',
+            'full_name', 'employee_code', 'position', 'hire_date',
+            'grade', 'address', 'education',
+            'account_number', 'npwp_number', 'nik',
+            'branch_id', 'assignment_role', 'assignment_start_at'
+        ]);
+        
+        $this->years_of_service = 0;
+        $this->resetValidation();
+    }
+
+    // ===== USER BRANCH ACTIONS =====
     public function deleteAssignment($id)
     {
         try {
-            UserBranche::find($id)->delete();
+            UserBranche::findOrFail($id)->delete();
             session()->flash('message', 'Assignment berhasil dihapus!');
         } catch (\Exception $e) {
-            session()->flash('message', 'Error: ' . $e->getMessage());
+            Log::error('Error deleting assignment: ' . $e->getMessage());
+            session()->flash('error', 'Gagal menghapus assignment: ' . $e->getMessage());
         }
     }
 
     public function toggleActive($id)
     {
         try {
-            $assignment = UserBranche::find($id);
+            $assignment = UserBranche::findOrFail($id);
             $assignment->is_active = !$assignment->is_active;
             $assignment->save();
 
             session()->flash('message', 'Status berhasil diubah!');
         } catch (\Exception $e) {
-            session()->flash('message', 'Error: ' . $e->getMessage());
+            Log::error('Error toggling active: ' . $e->getMessage());
+            session()->flash('error', 'Gagal mengubah status: ' . $e->getMessage());
         }
     }
 
-    private function resetUserForm()
-    {
-        $this->name = '';
-        $this->username = '';
-        $this->password = '';
-        $this->full_name = '';
-        $this->employee_code = '';
-        $this->position = '';
-        $this->hire_date = '';
-        $this->grade = '';
-        $this->address = '';
-        $this->years_of_service = 0;
-        $this->education = '';
-        $this->account_number = '';
-        $this->npwp_number = '';
-        $this->nik = '';
-        $this->branch_id = '';
-        $this->role = '';
-        $this->assignment_start_at = '';
-        $this->resetValidation();
-    }
-    public function updatedSearch()
-    {
-        $this->resetPage();
-    }
-
-
-
+    // ===== RENDER =====
     public function render()
     {
-
-
-        $userBranches = UserBranche::with(['user', 'branch'])
-            ->whereHas('user', function ($query) {
-                $query->where('name', 'like', "%{$this->search}%")
-                    ->orWhere('username', 'like', "%{$this->search}%");
-            })
-            ->orWhereHas('branch', function ($query) {
-                $query->where('name', 'like', "%{$this->search}%");
-            })
-            ->orderBy('id', 'desc')
-            ->paginate(10);
-
-        // Get all assigned user IDs
+        // Get assigned user IDs
         $assignedUserIds = UserBranche::pluck('user_id')->unique()->toArray();
 
-        // Get all employee IDs that have users
+        // Get employee IDs that have users
         $employeeIdsWithUsers = User::whereNotNull('employee_id')
             ->pluck('employee_id')
             ->unique()
             ->toArray();
 
-        return view('livewire.master.user-manage', [
-            'userBranches' => $userBranches, // ← gunakan query filter
+        // User Branches with search
+        $userBranches = UserBranche::with(['user.employee', 'branch'])
+            ->when($this->search, function ($query) {
+                $query->whereHas('user', function ($q) {
+                    $q->where('name', 'like', "%{$this->search}%")
+                      ->orWhere('username', 'like', "%{$this->search}%");
+                })
+                ->orWhereHas('branch', function ($q) {
+                    $q->where('name', 'like', "%{$this->search}%");
+                });
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(10);
 
+        return view('livewire.master.user-manage', [
+            'userBranches' => $userBranches,
             'unassignedUsers' => User::with('employee')
                 ->whereNotIn('id', $assignedUserIds)
                 ->get(),
-
             'unassignedEmployees' => Employee::whereNotIn('id', $employeeIdsWithUsers)
                 ->where('is_active', true)
                 ->get(),
-
-
             'users' => User::with('employee')->get(),
-            'branches' => Branch::all(),
-            'roles' => Role::all(),
+            'branches' => $this->branches,
+            'roles' => $this->roles,
         ]);
     }
 }

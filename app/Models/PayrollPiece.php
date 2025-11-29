@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class PayrollPiece extends Model
 {
     protected $fillable = [
-        'period',
+        'periode',
         'user_branche_id',
         'jabatan',
         'kesejahteraan',

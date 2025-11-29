@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('livewire.auth.login');
 })->name('home');
 
 Route::view('dashboard', 'dashboard')
@@ -55,7 +55,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/regions', RegionManage::class)->name('regions.manage')->middleware('can:regions:manage');
     Route::get('/branches', BrancheManage::class)->name('branches.manage')->middleware('can:branches:manage');
-    Route::get('/users', UserManage::class)->name('user.manage')->middleware('can:user:manage');
+    Route::get('/users', UserManage::class)->name('user.manage')->middleware('can:users:manage');
     Route::get('settings/password', action: Password::class)->name('user-password.edit');
     Route::get('/manage-payroll', PayrollManage::class)->name('payroll.manage')->middleware('can:payroll:manage');
     Route::get('/show-payroll', ShowPayroll::class)->name('payroll.show');

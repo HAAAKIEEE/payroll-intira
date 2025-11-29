@@ -29,132 +29,11 @@
     @endif
 
     {{-- Bento Grid Layout --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 auto-rows-max">
         
-        {{-- Branch Form Section --}}
-        <div class="lg:col-span-1 space-y-6">
-            {{-- Branch Form Card --}}
-             <a href="{{ route('master-data.import-branch.index') }}"
-            class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition shadow-sm">
-            + Tambah via Excel
-        </a>
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"></path>
-                    </svg>
-                    {{ $isBranchEditMode ? 'Edit Branch' : 'Create Branch' }}
-                </h2>
-
-                <form wire:submit.prevent="saveBranch">
-                    {{-- Branch Name --}}
-                    <div class="mb-4">
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                            Branch Name <span class="text-red-500">*</span>
-                        </label>
-                        <input 
-                            type="text" 
-                            wire:model.defer="name" 
-                            id="name" 
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                            placeholder="Enter branch name"
-                        >
-                        @error('name') 
-                            <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    {{-- Region Toggle --}}
-                    <div class="mb-4 p-4 bg-gray-50 rounded-lg">
-                        <label class="flex items-center cursor-pointer">
-                            <input 
-                                type="checkbox" 
-                                wire:model.live="createNewRegion" 
-                                class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                            >
-                            <span class="ml-2 text-sm font-medium text-gray-700">
-                                Create New Region
-                            </span>
-                        </label>
-                    </div>
-
-                    {{-- Region Selection or Create --}}
-                    @if($createNewRegion)
-                        <div class="mb-4 p-4 border-2 border-blue-100 rounded-lg bg-blue-50/50">
-                            <label for="region_name" class="block text-sm font-medium text-gray-700 mb-2">
-                                New Region Name <span class="text-red-500">*</span>
-                            </label>
-                            <input 
-                                type="text" 
-                                wire:model.defer="region_name" 
-                                id="region_name" 
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                                placeholder="Enter region name"
-                            >
-                            @error('region_name') 
-                                <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                            @enderror
-                        </div>
-                    @else
-                        <div class="mb-4">
-                            <label for="region_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                Region <span class="text-red-500">*</span>
-                            </label>
-                            <select 
-                                wire:model.defer="region_id" 
-                                id="region_id" 
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                            >
-                                <option value="">Select Region</option>
-                                @foreach($regions as $region)
-                                    <option value="{{ $region->id }}">
-                                        {{ $region->name }} ({{ $region->branches_count }} branches)
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('region_id') 
-                                <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                            @enderror
-                        </div>
-                    @endif
-
-                    {{-- Address --}}
-                    <div class="mb-6">
-                        <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
-                            Address
-                        </label>
-                        <textarea 
-                            wire:model.defer="address" 
-                            id="address" 
-                            rows="3"
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                            placeholder="Enter branch address"
-                        ></textarea>
-                        @error('address') 
-                            <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    {{-- Action Buttons --}}
-                    <div class="flex gap-3">
-                        <button 
-                            wire:click.prevent="createBranch" 
-                            type="button" 
-                            class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition"
-                        >
-                            New
-                        </button>
-                        <button 
-                            type="submit" 
-                            class="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition"
-                        >
-                            {{ $isBranchEditMode ? 'Update' : 'Save' }}
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            {{-- Region Quick Form Card --}}
+        {{-- Top Row --}}
+        {{-- Quick Add Region (Top Left) --}}
+        <div class="lg:col-span-1">
             <div class="bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl shadow-sm border border-purple-200 p-6">
                 <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                     <svg class="w-5 h-5 mr-2 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
@@ -199,9 +78,136 @@
             </div>
         </div>
 
-        {{-- Lists Section --}}
-        <div class="lg:col-span-2 space-y-6">
-            {{-- Branches List Card --}}
+        {{-- Create Branch (Top Right) --}}
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 ">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"></path>
+                        </svg>
+                        {{ $isBranchEditMode ? 'Edit Branch' : 'Create Branch' }}
+                    </h2>
+                    <a href="{{ route('master-data.import-branch.index') }}"
+                        class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition shadow-sm">
+                        + Import Excel
+                    </a>
+                </div>
+
+                <form wire:submit.prevent="saveBranch">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {{-- Branch Name --}}
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                                Branch Name <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                wire:model.defer="name" 
+                                id="name" 
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                placeholder="Enter branch name"
+                            >
+                            @error('name') 
+                                <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        {{-- Region Selection or Create --}}
+                        @if($createNewRegion)
+                            <div class="p-3 border-2 border-blue-100 rounded-lg bg-blue-50/50">
+                                <label for="region_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                    New Region Name <span class="text-red-500">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    wire:model.defer="region_name" 
+                                    id="region_name" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm"
+                                    placeholder="Enter region name"
+                                >
+                                @error('region_name') 
+                                    <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        @else
+                            <div>
+                                <label for="region_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Region <span class="text-red-500">*</span>
+                                </label>
+                                <select 
+                                    wire:model.defer="region_id" 
+                                    id="region_id" 
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                >
+                                    <option value="">Select Region</option>
+                                    @foreach($regions as $region)
+                                        <option value="{{ $region->id }}">
+                                            {{ $region->name }} ({{ $region->branches_count }} branches)
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('region_id') 
+                                    <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- Address --}}
+                    <div class="mt-4">
+                        <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
+                            Address
+                        </label>
+                        <textarea 
+                            wire:model.defer="address" 
+                            id="address" 
+                            rows="2"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            placeholder="Enter branch address"
+                        ></textarea>
+                        @error('address') 
+                            <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    {{-- Region Toggle --}}
+                    <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+                        <label class="flex items-center cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                wire:model.live="createNewRegion" 
+                                class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            >
+                            <span class="ml-2 text-sm font-medium text-gray-700">
+                                Create New Region
+                            </span>
+                        </label>
+                    </div>
+
+                    {{-- Action Buttons --}}
+                    <div class="flex gap-3 mt-4">
+                        <button 
+                            wire:click.prevent="createBranch" 
+                            type="button" 
+                            class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition"
+                        >
+                            New
+                        </button>
+                        <button 
+                            type="submit" 
+                            class="flex-1 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition"
+                        >
+                            {{ $isBranchEditMode ? 'Update' : 'Save' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- Bottom Row --}}
+        {{-- Branches List (Bottom Left) --}}
+        <div class="lg:col-span-2">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-semibold text-gray-800">Branches List</h2>
@@ -274,25 +280,27 @@
                     {{ $branches->links() }}
                 </div>
             </div>
+        </div>
 
-            {{-- Regions List Card --}}
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+        {{-- Regions List (Bottom Right) --}}
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 ">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-semibold text-gray-800">Regions List</h2>
-                    
-                    {{-- Search --}}
-                    <div class="w-64">
-                        <input 
-                            type="text" 
-                            wire:model.live.debounce.300ms="regionSearch" 
-                            placeholder="Search regions..." 
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm"
-                        >
-                    </div>
                 </div>
 
-                {{-- Regions Grid --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {{-- Search --}}
+                <div class="mb-4">
+                    <input 
+                        type="text" 
+                        wire:model.live.debounce.300ms="regionSearch" 
+                        placeholder="Search regions..." 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm"
+                    >
+                </div>
+
+                {{-- Regions List --}}
+                <div class="space-y-3 overflow-y-auto max-h-96">
                     @forelse($regions as $region)
                         <div class="p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:shadow-sm transition group">
                             <div class="flex justify-between items-start mb-2">
@@ -328,7 +336,7 @@
                             </div>
                         </div>
                     @empty
-                        <div class="col-span-2 py-8 text-center text-gray-500">
+                        <div class="py-8 text-center text-gray-500">
                             No regions found
                         </div>
                     @endforelse

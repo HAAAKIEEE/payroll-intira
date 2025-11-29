@@ -16,11 +16,11 @@ class PayrollPieceImport implements ToCollection
     private $imported = 0;
     private $skipped = 0;
     private $errors = [];
-    private $selectedPeriod;
+    private $selectedPeriode;
 
-    public function __construct($selectedPeriod)
+    public function __construct($selectedPeriode)
     {
-        $this->selectedPeriod = $selectedPeriod;
+        $this->selectedPeriode = $selectedPeriode;
     }
 
     /**
@@ -165,14 +165,14 @@ class PayrollPieceImport implements ToCollection
                 // STEP 5: Cek duplikasi berdasarkan user_branche_id, period, kategori, keterangan
                 // ========================
                 $existingPiece = PayrollPiece::where('user_branche_id', $userBranche->id)
-                    ->where('period', $this->selectedPeriod)
+                    ->where('periode', $this->selectedPeriode)
                     ->where('kategori', $kategori)
                     ->where('keterangan', $keterangan)
                     ->first();
 
                 if ($existingPiece) {
                     $this->skipped++;
-                    $this->errors[] = "Baris $rowNumber: Data piece untuk NIK '$nikExcel' dengan kategori '$kategori' dan keterangan '$keterangan' di periode '{$this->selectedPeriod}' sudah ada.";
+                    $this->errors[] = "Baris $rowNumber: Data piece untuk NIK '$nikExcel' dengan kategori '$kategori' dan keterangan '$keterangan' di periode '{$this->selectedPeriode}' sudah ada.";
                     Log::info("Data sudah ada, skip baris $rowNumber");
                     continue;
                 }
@@ -182,7 +182,7 @@ class PayrollPieceImport implements ToCollection
                 // ========================
                 PayrollPiece::create([
                     'user_branche_id' => $userBranche->id,
-                    'period' => $this->selectedPeriod,
+                    'periode' => $this->selectedPeriode,
                     'jabatan' => trim($row[4] ?? '-'), // Kolom D (index 3)
                     'kesejahteraan' => (float) $kesejahteraan,
                     'komunikasi' => (float) $komunikasi,
@@ -199,7 +199,7 @@ class PayrollPieceImport implements ToCollection
                     'employee_id' => $employee->id,
                     'user_id' => $user->id,
                     'user_branche_id' => $userBranche->id,
-                    'period' => $this->selectedPeriod,
+                    'periode' => $this->selectedPeriode,
                     'kategori' => $kategori
                 ]);
 
@@ -221,7 +221,7 @@ class PayrollPieceImport implements ToCollection
         // Kirim feedback ke session
         // ========================
         if ($this->imported > 0) {
-            session()->flash('message', "✅ Berhasil import {$this->imported} data ke periode '{$this->selectedPeriod}'. {$this->skipped} data gagal/dilewati.");
+            session()->flash('message', "✅ Berhasil import {$this->imported} data ke periode '{$this->selectedPeriode}'. {$this->skipped} data gagal/dilewati.");
         } else {
             session()->flash('error', "❌ Tidak ada data yang berhasil diimport. {$this->skipped} data gagal/dilewati.");
         }

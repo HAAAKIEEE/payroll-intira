@@ -8,7 +8,7 @@ class Payroll extends Model
 {
        protected $fillable = [
         'user_branche_id',
-        'period',
+        'periode',
         'hari_kerja',
         'gaji_pokok',
         'transportasi',

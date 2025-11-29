@@ -46,14 +46,14 @@
                     {{ __('Pilih Periode Payroll') }}
                     <span class="text-red-500">*</span>
                 </label>
-                <select wire:model.live="selectedPeriod" 
+                <select wire:model.live="selectedPeriode" 
                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     <option value="">-- Pilih Periode --</option>
-                    @foreach($periods as $period)
+                    @foreach($periodes as $period)
                         <option value="{{ $period }}">{{ $period }}</option>
                     @endforeach
                 </select>
-                @error('selectedPeriod') 
+                @error('selectedPeriode') 
                     <span class="mt-2 text-sm text-red-600">{{ $message }}</span> 
                 @enderror
             </div>

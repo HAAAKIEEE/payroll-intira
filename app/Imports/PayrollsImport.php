@@ -45,11 +45,19 @@ class PayrollsImport implements ToCollection, WithCalculatedFormulas
                     throw new \Exception("Cabang '$cabang' tidak ditemukan untuk user '$nama'");
                 }
 
-                $gaji = fn($val) => (int) str_replace([',', '.'], '', $val);
+                $gaji = function ($val) {
+                    if (!$val) return 0;
+
+                    // Hapus koma (ribuan) tapi jangan hapus titik
+                    $val = str_replace(',', '', $val);
+
+                    // Kembalikan sebagai float (lebih aman dari int)
+                    return (float) $val;
+                };
 
                 Payroll::create([
                     'user_branche_id' => $userBranch->id,
-                    'period'          => now()->format('Y-m'),
+                    'periode'          => now()->format('Y-m'),
                     'hari_kerja'      => $row[5] ?? 0,
                     'gaji_pokok'      => $gaji($row[6] ?? 0),
                     'transportasi'    => $gaji($row[7] ?? 0),
@@ -60,7 +68,6 @@ class PayrollsImport implements ToCollection, WithCalculatedFormulas
                     'potongan'        => $gaji($row[12] ?? 0),
                     'total'           => $gaji($row[13] ?? 0),
                 ]);
-
             } catch (\Exception $e) {
 
                 $this->errors[] = [

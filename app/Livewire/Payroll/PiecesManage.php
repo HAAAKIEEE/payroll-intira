@@ -13,31 +13,31 @@ class PiecesManage extends Component
     use WithFileUploads;
 
     public $file;
-    public $selectedPeriod = '';
-    public $periods = [];
+    public $selectedPeriode = '';
+    public $periodes = [];
 
     protected $messages = [
         'file.required' => 'File Excel wajib diupload.',
         'file.mimes' => 'File harus berformat .xlsx atau .xls',
         'file.max' => 'Ukuran file maksimal 10MB.',
-        'selectedPeriod.required' => 'Periode payroll wajib dipilih.',
+        'selectedPeriode.required' => 'Periode payroll wajib dipilih.',
     ];
 
     public function mount()
     {
         // Ambil semua periode unik dari database, diurutkan terbaru
-        $this->periods = Payroll::select('period')
+        $this->periodes = Payroll::select('periode')
             ->distinct()
-            ->orderBy('period', 'desc')
-            ->pluck('period')
+            ->orderBy('periode', 'desc')
+            ->pluck('periode')
             ->toArray();
     }
 
     // Validasi real-time ketika periode dipilih
-    public function updatedSelectedPeriod($value)
+    public function updatedSelectedPeriode($value)
     {
-        $this->validateOnly('selectedPeriod', [
-            'selectedPeriod' => 'required|string',
+        $this->validateOnly('selectedPeriode', [
+            'selectedPeriode' => 'required|string',
         ]);
     }
 
@@ -46,12 +46,12 @@ class PiecesManage extends Component
         // Validasi lengkap sebelum import
         $validated = $this->validate([
             'file' => 'required|mimes:xlsx,xls|max:10240',
-            'selectedPeriod' => 'required|string',
+            'selectedPeriode' => 'required|string',
         ]);
 
         try {
             // Pass periode yang dipilih ke import class
-            Excel::import(new PayrollPieceImport($this->selectedPeriod), $this->file->getRealPath());
+            Excel::import(new PayrollPieceImport($this->selectedPeriode), $this->file->getRealPath());
 
             // Jangan langsung flash message di sini, biarkan import class yang handle
             

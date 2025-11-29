@@ -151,12 +151,8 @@ class EmployeeUserImport implements
                 // ================================
                 if ($branchName) {
                     // Jika nama cabang diawali "KC" maka cari cabang sesuai nama
-                    if (str_starts_with(strtoupper($branchName), 'KC')) {
-                        $branch = Branch::where('name', $branchName)->first();
-                    } else {
-                        // Selain KC → langsung masukkan ke cabang MASTER
-                        $branch = Branch::where('name', 'MASTER')->first();
-                    }
+                  $branch = Branch::where('name', $branchName)->first();
+
                     if ($branch) {
                         retry(5, function () use ($user, $branch) {
                             UserBranche::updateOrCreate(
