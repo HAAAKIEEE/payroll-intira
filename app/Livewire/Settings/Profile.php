@@ -11,21 +11,14 @@ use Livewire\Component;
 class Profile extends Component
 {
     public string $name = '';
+    public string $username = ''; // ganti email → username
 
-    public string $email = '';
-
-    /**
-     * Mount the component.
-     */
     public function mount(): void
     {
         $this->name = Auth::user()->name;
-        $this->email = Auth::user()->email;
+        $this->username = Auth::user()->username; // ambil username
     }
 
-    /**
-     * Update the profile information for the currently authenticated user.
-     */
     public function updateProfileInformation(): void
     {
         $user = Auth::user();
@@ -33,11 +26,9 @@ class Profile extends Component
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
 
-            'email' => [
+            'username' => [
                 'required',
                 'string',
-                'lowercase',
-                'email',
                 'max:255',
                 Rule::unique(User::class)->ignore($user->id),
             ],
@@ -45,30 +36,17 @@ class Profile extends Component
 
         $user->fill($validated);
 
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-
         $user->save();
 
         $this->dispatch('profile-updated', name: $user->name);
     }
 
-    /**
-     * Send an email verification notification to the current user.
-     */
     public function resendVerificationNotification(): void
     {
-        $user = Auth::user();
+        // Jika login tidak lagi berbasis email,
+        // maka verifikasi email bisa dihapus
+        // atau fungsi ini bisa dihilangkan
 
-        if ($user->hasVerifiedEmail()) {
-            $this->redirectIntended(default: route('dashboard', absolute: false));
-
-            return;
-        }
-
-        $user->sendEmailVerificationNotification();
-
-        Session::flash('status', 'verification-link-sent');
+        Session::flash('status', 'Username updated successfully.');
     }
 }

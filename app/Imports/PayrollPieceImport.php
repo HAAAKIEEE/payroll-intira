@@ -162,36 +162,52 @@ class PayrollPieceImport implements ToCollection
                 Log::info("✓ Validasi NIK berhasil - NIK Excel: $nikExcel == NIK Database: {$userEmployee->nik}");
 
                 // ========================
-                // STEP 5: Cek duplikasi berdasarkan user_branche_id, period, kategori, keterangan
+                // STEP 5: Cek duplikasi 
                 // ========================
-                // $existingPiece = PayrollPiece::where('user_branche_id', $userBranche->id)
-                //     ->where('periode', $this->selectedPeriode)
-                //     ->where('kategori', $kategori)
-                //     ->where('keterangan', $keterangan)
-                //     ->first();
+                // STEP 5: Cek duplikasi data
+$duplicateQuery = PayrollPiece::where('user_branche_id', $userBranche->id)
+    ->where('periode', $this->selectedPeriode)
+    ->where('kategori', $kategori);
 
-                // if ($existingPiece) {
-                //     $this->skipped++;
-                //     $this->errors[] = "Baris $rowNumber: Data piece untuk NIK '$nikExcel' dengan kategori '$kategori' dan keterangan '$keterangan' di periode '{$this->selectedPeriode}' sudah ada.";
-                //     Log::info("Data sudah ada, skip baris $rowNumber");
-                //     continue;
-                // }
+if ($tanggal) {
+    $duplicateQuery->where('tanggal', $tanggal);
+}
+
+if ($duplicateQuery->exists()) {
+    $this->skipped++;
+    $this->errors[] = "Baris $rowNumber: SKIP duplikat (Kategori '$kategori', Tanggal '$tanggal')";
+    continue;
+}
+
+// STEP 6: Simpan
+PayrollPiece::create([
+    'user_branche_id' => $userBranche->id,
+    'periode' => $this->selectedPeriode,
+    'jabatan' => trim($row[4] ?? '-'),
+    'kesejahteraan' => (float) $kesejahteraan,
+    'komunikasi' => (float) $komunikasi,
+    'tunjangan' => (float) $tunjangan,
+    'potongan' => (float) $potongan,
+    'kategori' => $kategori,
+    'keterangan' => $keterangan ?: null,
+    'tanggal' => $tanggal
+]);
 
                 // ========================
                 // STEP 6: Simpan PayrollPiece
                 // ========================
-                PayrollPiece::create([
-                    'user_branche_id' => $userBranche->id,
-                    'periode' => $this->selectedPeriode,
-                    'jabatan' => trim($row[4] ?? '-'), // Kolom D (index 3)
-                    'kesejahteraan' => (float) $kesejahteraan,
-                    'komunikasi' => (float) $komunikasi,
-                    'tunjangan' => (float) $tunjangan,
-                    'potongan' => (float) $potongan,
-                    'kategori' => $kategori,
-                    'keterangan' => $keterangan ?: null,
-                    'tanggal' => $tanggal
-                ]);
+                // PayrollPiece::create([
+                //     'user_branche_id' => $userBranche->id,
+                //     'periode' => $this->selectedPeriode,
+                //     'jabatan' => trim($row[4] ?? '-'), // Kolom D (index 3)
+                //     'kesejahteraan' => (float) $kesejahteraan,
+                //     'komunikasi' => (float) $komunikasi,
+                //     'tunjangan' => (float) $tunjangan,
+                //     'potongan' => (float) $potongan,
+                //     'kategori' => $kategori,
+                //     'keterangan' => $keterangan ?: null,
+                //     'tanggal' => $tanggal
+                // ]);
 
                 Log::info("✅ Berhasil import baris $rowNumber", [
                     'nik' => $nikExcel,
