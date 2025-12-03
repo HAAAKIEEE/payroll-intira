@@ -165,19 +165,22 @@ class PayrollPieceImport implements ToCollection
                 // STEP 5: Cek duplikasi 
                 // ========================
                 // STEP 5: Cek duplikasi data
-$duplicateQuery = PayrollPiece::where('user_branche_id', $userBranche->id)
+$duplicate = PayrollPiece::where('user_branche_id', $userBranche->id)
     ->where('periode', $this->selectedPeriode)
-    ->where('kategori', $kategori);
+    ->where('kategori', $kategori)
+    ->where('tanggal', $tanggal)
+    ->where('kesejahteraan', (float)$kesejahteraan)
+    ->where('komunikasi', (float)$komunikasi)
+    ->where('tunjangan', (float)$tunjangan)
+    ->where('potongan', (float)$potongan)
+    ->exists();
 
-if ($tanggal) {
-    $duplicateQuery->where('tanggal', $tanggal);
-}
-
-if ($duplicateQuery->exists()) {
+if ($duplicate) {
     $this->skipped++;
     $this->errors[] = "Baris $rowNumber: SKIP duplikat (Kategori '$kategori', Tanggal '$tanggal')";
     continue;
 }
+
 
 // STEP 6: Simpan
 PayrollPiece::create([
