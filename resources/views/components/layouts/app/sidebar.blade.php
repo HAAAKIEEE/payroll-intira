@@ -37,7 +37,7 @@
 
         <flux:navlist variant="outline">
             @role('Head Office')
-                <<<<<<< Updated upstream <flux:navlist.item icon="folder-git-2" href="{{ route('payroll.manage') }}">
+               <flux:navlist.item icon="folder-git-2" href="{{ route('payroll.manage') }}">
                     {{ __('Payroll Management') }}
                     </flux:navlist.item>
                     <flux:navlist.item icon="folder-git-2" href="{{ route('master-data.import-payroll-am.index') }}">
@@ -52,7 +52,7 @@
                     <flux:navlist.item icon="folder-git-2" href="{{ route('branches.manage') }}">
                         {{ __('Branch Management') }}
                     </flux:navlist.item>
-                    =======
+                    {{-- =======
                     <flux:navlist.item icon="folder-git-2" href="{{ route('payroll.manage') }}">
                         {{ __('Payroll Management') }}
                     </flux:navlist.item>
@@ -65,7 +65,7 @@
                     <flux:navlist.item icon="folder-git-2" href="{{ route('branches.manage') }}">
                         {{ __('Branch Management') }}
                     </flux:navlist.item>
-                    >>>>>>> Stashed changes
+                    >>>>>>> Stashed changes --}}
                 @endrole
                 {{-- <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit"
                 target="_blank">

@@ -78,9 +78,10 @@
             <!-- Upload Section -->
             <div class="border rounded-lg p-6 shadow-sm dark:bg-zinc-900 dark:border-zinc-700">
 
-                <form action="{{ route('master-data.import-employee-user.import') }}" 
+                <form action="{{ route('master-data.import-employee-user') }}" 
                       method="POST" enctype="multipart/form-data" id="importForm">
                     @csrf
+                    @method('POST')
 
                     <label class="font-semibold mb-3 block">Upload File Excel</label>
 

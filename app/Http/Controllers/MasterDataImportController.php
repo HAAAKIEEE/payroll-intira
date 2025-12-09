@@ -158,9 +158,6 @@ class MasterDataImportController extends Controller
         return view('master.import-payroll-am');
     }
 
-    /**
-     * Handle the import process
-     */
     public function importpayrollAm(Request $request)
     {
         $request->validate([

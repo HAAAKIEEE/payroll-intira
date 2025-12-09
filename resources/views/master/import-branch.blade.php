@@ -73,7 +73,7 @@
                     <i class="fas fa-download text-blue-600"></i>
                     Download Template
                 </h2>
-                <a href="{{ route('master-data.download-template') }}"
+                <a href=""
                    class="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg">
                     <i class="fas fa-file-download"></i>
                     Download Template Excel

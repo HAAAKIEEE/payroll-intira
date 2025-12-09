@@ -29,31 +29,23 @@ Route::view('dashboard', 'dashboard')
 
 Route::middleware(['auth'])->group(function () {
 
-    // Halaman form import
+    // Halaman form import branch
     Route::get('/master-data/import-branch', [MasterDataImportController::class, 'indexBranch'])
         ->name('master-data.import-branch.index')->middleware('can:branches:import');
     Route::post('/master-data/import-branch', [MasterDataImportController::class, 'importBranch'])
         ->name('master-data.import')->middleware('can:branches:import');
+// halaman inport employee user
     Route::get('/master-data/import-employee-user', [MasterDataImportController::class, 'indexEmployeeUser'])
         ->name('master-data.import-employee-user.index')->middleware('can:users:import');
+
     Route::post('/master-data/import-employee-user', [MasterDataImportController::class, 'importEmployeeUser'])
-        ->name('master-data.import-employee-user.import')->middleware('can:users:import');
-   
-        Route::get('/master-data/import-payroll-am', [MasterDataImportController::class, 'payrollAm'])
+        ->name('master-data.import-employee-user')->middleware('can:users:import');
+// import payroll am
+    Route::get('/master-data/import-payroll-am', [MasterDataImportController::class, 'payrollAm'])
         ->name('master-data.import-payroll-am.index')->middleware('can:branches:import');
-
-        Route::post('/master-data/import-employee-user', [MasterDataImportController::class, 'importpayrollAm'])
+    Route::post('/master-data/import-payroll-am', [MasterDataImportController::class, 'importpayrollAm'])
         ->name('master-data.import-payroll-am')->middleware('can:users:import');
-   
-        Route::get('/download-template', [MasterDataImportController::class, 'downloadTemplateImportPayrollAm'])->name('download-template');
 
-
-    Route::get('/master-data/download-template', [MasterDataImportController::class, 'downloadTemplate'])
-        ->name('master-data.download-template')->middleware('can:master:download template');
-
-    // Preview data (optional)
-    Route::post('/master-data/preview', [MasterDataImportController::class, 'preview'])
-        ->name('master-data.preview');
 
     Route::redirect('settings', 'settings/profile');
     Route::get('settings/profile', Profile::class)->name('profile.edit');
