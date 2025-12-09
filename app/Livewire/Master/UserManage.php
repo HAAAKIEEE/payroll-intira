@@ -218,7 +218,6 @@ class UserManage extends Component
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-
             session()->flash('error', 'Gagal menyimpan data: ' . $e->getMessage());
         }
     }
