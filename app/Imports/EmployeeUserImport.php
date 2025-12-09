@@ -12,12 +12,16 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\WithCalculatedFormulas;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 class EmployeeUserImport implements
     ToCollection,
     SkipsEmptyRows,
-    WithCalculatedFormulas
+    WithCalculatedFormulas,
+    WithBatchInserts,
+    WithChunkReading
 {
     private $imported = 0;
     private $skipped = 0;
@@ -234,5 +238,14 @@ class EmployeeUserImport implements
     public function getErrors()
     {
         return $this->errors;
+    }
+      public function batchSize(): int
+    {
+        return 500;
+    }
+
+    public function chunkSize(): int
+    {
+        return 500;
     }
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" >
 
 <head>
     @include('partials.head')
@@ -38,6 +38,9 @@
             @role('Head Office')
             <flux:navlist.item icon="folder-git-2" href="{{ route('payroll.manage') }}">
                 {{ __('Payroll Management') }}
+            </flux:navlist.item>
+             <flux:navlist.item icon="folder-git-2" href="{{ route('master-data.import-payroll-am.index') }}">
+                {{ __('Payroll Management Area Manager') }}
             </flux:navlist.item>
             <flux:navlist.item icon="folder-git-2" href="{{ route('pieces.manage') }}">
                 {{ __('Payroll Pieces Management') }}

@@ -37,7 +37,14 @@ Route::middleware(['auth'])->group(function () {
         ->name('master-data.import-employee-user.index')->middleware('can:users:import');
     Route::post('/master-data/import-employee-user', [MasterDataImportController::class, 'importEmployeeUser'])
         ->name('master-data.import-employee-user.import')->middleware('can:users:import');
-    // Download template
+   
+        Route::get('/master-data/import-payroll-am', [MasterDataImportController::class, 'payrollAm'])
+        ->name('master-data.import-payroll-am.index')->middleware('can:branches:import');
+
+        Route::post('/master-data/import-employee-user', [MasterDataImportController::class, 'importpayrollAm'])
+        ->name('master-data.import-payroll-am')->middleware('can:users:import');
+   
+        Route::get('/download-template', [MasterDataImportController::class, 'downloadTemplateImportPayrollAm'])->name('download-template');
 
 
     Route::get('/master-data/download-template', [MasterDataImportController::class, 'downloadTemplate'])
@@ -50,8 +57,8 @@ Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
     Route::get('settings/profile', Profile::class)->name('profile.edit');
     Route::get('/manage-role-permissions', RolePermissionManagement::class)
-    ->name('manage.role-permissions')->middleware('can:authorization:manage roles');
-    
+        ->name('manage.role-permissions')->middleware('can:authorization:manage roles');
+
 
     Route::get('/regions', RegionManage::class)->name('regions.manage')->middleware('can:regions:manage');
     Route::get('/branches', BrancheManage::class)->name('branches.manage')->middleware('can:branches:manage');

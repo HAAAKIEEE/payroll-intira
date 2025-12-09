@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Imports\BranchImport;
 use App\Imports\EmployeeUserImport;
 use App\Imports\MasterDataImport;
+use App\Imports\PayrollAmImport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;
@@ -152,48 +153,58 @@ class MasterDataImportController extends Controller
     }
 }
 
-
-
-    /**
-     * Download template Excel
-     */
-    public function downloadTemplate()
+  public function payrollAm()
     {
-        $filePath = public_path('templates/master-data-template.xlsx');
-        
-        if (!file_exists($filePath)) {
-            return redirect()
-                ->back()
-                ->with('error', 'Template file tidak ditemukan');
-        }
-
-        return response()->download($filePath, 'Template-Master-Data.xlsx');
+        return view('master.import-payroll-am');
     }
 
     /**
-     * Show import preview (optional feature)
+     * Handle the import process
      */
-    public function preview(Request $request)
+    public function importpayrollAm(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls|max:10240',
+            'file' => 'required|mimes:xlsx,xls|max:10240'
+        ], [
+            'file.required' => 'File Excel wajib diupload',
+            'file.mimes'    => 'Format harus .xlsx atau .xls',
+            'file.max'      => 'Ukuran file maksimal 10MB',
         ]);
 
         try {
             $file = $request->file('file');
-            
-            // Load Excel untuk preview (tanpa import ke database)
-            $data = Excel::toArray(new MasterDataImport, $file);
-            
-            return view('master-data.preview', [
-                'branches' => $data[0] ?? [], // Sheet MASTER CABANG
-                'employees' => $data[1] ?? [], // Sheet MASTER KARYAWAN
-            ]);
-            
+
+            // ✅ Gunakan PayrollAmImport yang benar
+            $import = new PayrollAmImport;
+            Excel::import($import, $file);
+
+            // Ambil hasil dari import class
+            $imported = $import->getImportedCount();
+            $skipped  = $import->getSkippedCount();
+            $errors   = $import->getErrors();
+
+            // Selalu kirim session agar bisa ditampilkan di Blade
+            return redirect()
+                ->back()
+                ->with('success', "✅ Import Payroll AM selesai! Berhasil: $imported, Dilewati: $skipped")
+                ->with('import_errors', $errors);
+
         } catch (Exception $e) {
             return redirect()
                 ->back()
-                ->with('error', 'Preview gagal: ' . $e->getMessage());
+                ->with('error', '❌ Import gagal: ' . $e->getMessage());
         }
     }
+
+
+
+
+
+public function downloadTemplateImportPayrollAm()
+{
+    $file = public_path('template/payroll-template.xlsx'); // lokasi file
+
+    return response()->download($file, 'payroll-template.xlsx');
+}
+
 }

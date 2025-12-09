@@ -27,7 +27,7 @@
         </tr>
         <tr class="border-b border-gray-200">
             <td class="font-semibold py-2">GOLONGAN</td>
-            <td class="py-2">: {{ $payroll->userBranche->user->golongan ?? '-' }}</td>
+            <td class="py-2">: {{ $payroll->userBranche->user-> ?? '-' }}</td>
         </tr>
         <tr class="border-b border-gray-200">
             <td class="font-semibold py-2">PERIODE</td>
@@ -76,8 +76,14 @@
 
                     {{ number_format($payroll->bonus_revenue, 0, ',', '.') }}
                 </span>
-             ( {{ rtrim(rtrim(number_format($payroll->revenue_persentase, 2, '.', ''), '0'), '.') }}%
+             @if($payroll->userBranche->branch->name === 'AREA MANAGER')
+                <span class="mr-5">
+                    {{ number_format($payroll->jumlah_cabang_dipegang, 0, ',', '.') }}
+                </span>
+             @else
+                ( {{ rtrim(rtrim(number_format($payroll->revenue_persentase, 2, '.', ''), '0'), '.') }}%
              )
+@endif
             </td>
             <td class="text-right py-2 font-semibold text-green-800">
                 {{ number_format($payroll->total_revenue, 0, ',', '.') }}

@@ -21,6 +21,7 @@ class Payroll extends Model
         // Revenue & bonus
         'bonus_revenue',
         'revenue_persentase',
+        'jumlah_cabang_dipegang',
         'total_revenue',
 
         // Potongan & simpanan
