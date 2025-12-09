@@ -142,7 +142,7 @@ class UserManage extends Component
             'username' => 'required|string|unique:users,username|max:255',
             'password' => 'required|min:6',
             'user_role' => 'required|string|exists:roles,name',
-            
+
             'full_name' => 'required|string|max:255',
             'employee_code' => 'required|string|unique:employees,employee_code',
             'position' => 'nullable|string',
@@ -154,7 +154,7 @@ class UserManage extends Component
             'account_number' => 'nullable|string|max:30',
             'npwp_number' => 'nullable|string|max:30',
             'nik' => 'nullable|string|max:30',
-            
+
             'branch_id' => 'required|exists:branches,id',
             'assignment_role' => 'required|string|exists:roles,name',
             'assignment_start_at' => 'required|date',
@@ -211,15 +211,14 @@ class UserManage extends Component
             session()->flash('message', 'User, Employee, dan Assignment berhasil dibuat!');
             $this->closeUserModal();
             $this->resetPage();
-            
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Error creating user:', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             session()->flash('error', 'Gagal menyimpan data: ' . $e->getMessage());
         }
     }
@@ -227,13 +226,25 @@ class UserManage extends Component
     private function resetUserForm()
     {
         $this->reset([
-            'name', 'username', 'password', 'user_role',
-            'full_name', 'employee_code', 'position', 'hire_date',
-            'grade', 'address', 'education',
-            'account_number', 'npwp_number', 'nik',
-            'branch_id', 'assignment_role', 'assignment_start_at'
+            'name',
+            'username',
+            'password',
+            'user_role',
+            'full_name',
+            'employee_code',
+            'position',
+            'hire_date',
+            'grade',
+            'address',
+            'education',
+            'account_number',
+            'npwp_number',
+            'nik',
+            'branch_id',
+            'assignment_role',
+            'assignment_start_at'
         ]);
-        
+
         $this->years_of_service = 0;
         $this->resetValidation();
     }
@@ -264,6 +275,13 @@ class UserManage extends Component
         }
     }
 
+    public function editAssignment($id)
+    {
+        // $this->redirect('user/edit', ['id' => $id]);
+        // dd("id received: ", $id);
+        return redirect()->route('user.edit', ['id' => $id]);
+    }
+
     // ===== RENDER =====
     public function render()
     {
@@ -281,11 +299,11 @@ class UserManage extends Component
             ->when($this->search, function ($query) {
                 $query->whereHas('user', function ($q) {
                     $q->where('name', 'like', "%{$this->search}%")
-                      ->orWhere('username', 'like', "%{$this->search}%");
+                        ->orWhere('username', 'like', "%{$this->search}%");
                 })
-                ->orWhereHas('branch', function ($q) {
-                    $q->where('name', 'like', "%{$this->search}%");
-                });
+                    ->orWhereHas('branch', function ($q) {
+                        $q->where('name', 'like', "%{$this->search}%");
+                    });
             })
             ->orderBy('id', 'desc')
             ->paginate(10);

@@ -7,6 +7,7 @@ use App\Livewire\Master\ManageRegions;
 use App\Livewire\Master\PayrollManage;
 use App\Livewire\Master\RegionManage;
 use App\Livewire\Master\RolePermissionManagement;
+use App\Livewire\Master\UserEdit;
 use App\Livewire\Master\UserManage;
 use App\Livewire\Payroll\ManagePayroll;
 use App\Livewire\Payroll\PiecesManage;
@@ -63,6 +64,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/regions', RegionManage::class)->name('regions.manage')->middleware('can:regions:manage');
     Route::get('/branches', BrancheManage::class)->name('branches.manage')->middleware('can:branches:manage');
     Route::get('/users', UserManage::class)->name('user.manage')->middleware('can:users:manage');
+    Route::get('/user/edit/{id}', UserEdit::class)->name('user.edit')->middleware('can:users:manage');
     Route::get('settings/password', action: Password::class)->name('user-password.edit');
     Route::get('/manage-payroll', PayrollManage::class)->name('payroll.manage')->middleware('can:payroll:manage');
     Route::get('/show-payroll', ShowPayroll::class)->name('payroll.show');
