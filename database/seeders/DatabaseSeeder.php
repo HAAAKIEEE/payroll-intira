@@ -16,41 +16,21 @@ class DatabaseSeeder extends Seeder
         $this->call(RolesAndPermissionsSeeder::class);
 
         // User Front Manager
-        $frontOffice = User::create([
-            'name' => 'FO 12',
-            'username' => 'ibay5212',
+        $master = User::create([
+            'name' => 'Master Shifu',
+            'username' => 'master123',
             'password' => bcrypt('123123123'),
         ]);
-        $frontOffice->assignRole('Front Office');
+        $master->assignRole('Master');
+
 
         // User Area Manager
-        $areaManager = User::create([
-            'name' => 'AM 12',
-            'username' => 'haci5212',
+        $karyawan = User::create([
+            'name' => 'karyawan Sampai Mati',
+            'username' => 'karyawan123',
             'password' => bcrypt('123123123'),
         ]);
-        $areaManager->assignRole('Area Manager');
+        $karyawan->assignRole('Karyawan');
 
-        // User Head Office
-        $headOffice = User::create([
-            'name' => 'HO 12',
-            'username' => 'admin5212',
-            'password' => bcrypt('123123123'),
-        ]);
-        $headOffice->assignRole('Head Office');
-
-        $userSDM = User::create([
-            'name' => 'SDM User',
-            'username' => 'sdmuser',
-            'password' => bcrypt('123123123'),
-        ]);
-        $userSDM->assignRole('SDM');
-
-        $userMarketing = User::create([
-            'name' => 'Marketing User',
-            'username' => 'marketinguser',
-            'password' => bcrypt('123123123'),
-        ]);
-        $userMarketing->assignRole('Marketing');
     }
 }

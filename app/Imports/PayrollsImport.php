@@ -10,16 +10,23 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class PayrollsImport implements ToModel, WithHeadingRow
 {
-    public $errors = [];
+    public array $errors = [];
+    protected string $periode;
+
+    // ✅ terima periode dari Livewire
+    public function __construct(string $periode)
+    {
+        $this->periode = $periode;
+    }
+
     public function headingRow(): int
     {
-        return 2; // karena NAMA dan CABANG ada di baris ke-2
+        return 2;
     }
 
     public function model(array $row)
     {
         try {
-            // Helper untuk mencocokkan kolom header Excel tanpa peduli uppercase / spasi / underscore
             $col = function ($row, $key) {
                 $clean = fn($str) => strtolower(str_replace([' ', '_'], '', $str));
                 $search = $clean($key);
@@ -32,12 +39,10 @@ class PayrollsImport implements ToModel, WithHeadingRow
                 return null;
             };
 
-            // Helper agar nilai yang kosong menjadi 0 dan persen/koma dibersihkan
             $num = fn($val) =>
-            $val === null || $val === '' ? 0 :
+                $val === null || $val === '' ? 0 :
                 floatval(str_replace(['%', ','], '', $val));
 
-            // Ambil user dan cabang
             $nama   = trim($col($row, 'nama') ?? '');
             $cabang = trim($col($row, 'cabang') ?? '');
 
@@ -46,7 +51,9 @@ class PayrollsImport implements ToModel, WithHeadingRow
             }
 
             $user = User::where('name', $nama)->first();
-            if (!$user) throw new \Exception("User '$nama' tidak ditemukan");
+            if (!$user) {
+                throw new \Exception("User '$nama' tidak ditemukan");
+            }
 
             $userBranch = UserBranche::where('user_id', $user->id)
                 ->whereHas('branch', fn($q) => $q->where('name', $cabang))
@@ -57,41 +64,39 @@ class PayrollsImport implements ToModel, WithHeadingRow
             }
 
             return new Payroll([
-                'user_branche_id'    => $userBranch->id,
-                'periode'            => now()->format('Y-m'),
+                'user_branche_id' => $userBranch->id,
+                'periode'         => $this->periode, // ✅ dari form
+                'golongan'        => $row['golongan'] ?? null,
 
-                'gaji_pokok'         => $num($col($row, 'gaji pokok')),
-                'transportasi'       => $num($col($row, 'transport')),
-                'makan'              => $num($col($row, 'makan')),
-                'hari_kerja'         => $col($row, 'hari kerja') ?? 0,
+                'gaji_pokok'      => $num($col($row, 'gaji pokok')),
+                'transportasi'    => $num($col($row, 'transport')),
+                'makan'           => $num($col($row, 'makan')),
+                'hari_kerja'      => $col($row, 'hari kerja') ?? 0,
 
-                // Revenue & bonus
-                'bonus_revenue'      => $num($col($row, 'revenue cabang')),
+                'bonus_revenue'   => $num($col($row, 'revenue cabang')),
                 'revenue_persentase' => $num($col($row, 'persentase revenue')),
-                'total_revenue'      => $num($col($row, 'bonus revenue full')),
+                'total_revenue'   => $num($col($row, 'bonus revenue full')),
 
-                // Tunjangan & potongan
-                'tunjangan'          => $num($col($row, 'tunjangan')),
-                'potongan'           => $num($col($row, 'potongan')),
-                'simpanan'           => $num($col($row, 'simpanan')),
+                'tunjangan'       => $num($col($row, 'tunjangan')),
+                'potongan'        => $num($col($row, 'potongan')),
+                'simpanan'        => $num($col($row, 'simpanan')),
 
-                // KPI
-                'kpi_persentase'     => $num($col($row, 'persentase kpi')),
-                'kpi'                => $num($col($row, 'bonus revenue')),
-                'total_kpi'          => $num($col($row, 'pot kpi')),
+                'kpi_persentase'  => $num($col($row, 'persentase kpi')),
+                'kpi'             => $num($col($row, 'bonus revenue')),
+                'total_kpi'       => $num($col($row, 'pot kpi')),
 
-                // Total akhir
-                'grand_total'        => $num($col($row, 'grand total')),
-                'take_home_pay'      => $num($col($row, 'thp')),
+                'grand_total'     => $num($col($row, 'grand total')),
+                'take_home_pay'   => $num($col($row, 'thp')),
             ]);
+
         } catch (\Exception $e) {
             $this->errors[] = [
                 'row'    => $row['__row'] ?? null,
                 'reason' => $e->getMessage(),
                 'data'   => $row,
             ];
-
             return null;
         }
     }
 }
+

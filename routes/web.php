@@ -12,6 +12,7 @@ use App\Livewire\Master\UserManage;
 use App\Livewire\Payroll\ManagePayroll;
 use App\Livewire\Payroll\PiecesManage;
 use App\Livewire\Payroll\ShowPayroll;
+use App\Livewire\Payroll\TabelPayroll;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -60,6 +61,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/password', action: Password::class)->name('user-password.edit');
     Route::get('/manage-payroll', PayrollManage::class)->name('payroll.manage')->middleware('can:payroll:manage');
     Route::get('/show-payroll', ShowPayroll::class)->name('payroll.show');
+    Route::get('/tabel-payroll', TabelPayroll::class)->name('payroll.tabel');
     Route::get('/payroll', ManagePayroll::class)->name('payroll.import')->middleware('can:payroll:import');
     Route::get('/manage-pieces', PiecesManage::class)->name('pieces.manage')->middleware('can:pieces:manage');
     Route::get('settings/appearance', Appearance::class)->name('appearance.edit');

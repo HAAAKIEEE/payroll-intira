@@ -116,83 +116,77 @@ class MasterDataImportController extends Controller
     /**
      * Handle the import process
      */
-  public function importEmployeeUser(Request $request)
-{
-    $request->validate([
-        'file' => 'required|mimes:xlsx,xls|max:10240'
-    ], [
-        'file.required' => 'File Excel wajib diupload',
-        'file.mimes'    => 'Format harus .xlsx atau .xls',
-        'file.max'      => 'Ukuran file maksimal 10MB',
-    ]);
+ public function importEmployeeUser(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls|max:10240',
+        ]);
+        // dd($request->file);
 
-    try {
 
-        $file = $request->file('file');
+        try {
+            $import = new EmployeeUserImport;
+            Excel::import($import, $request->file('file'));
+            return redirect()
+                ->back()
+                ->with('success', 'Import sedang selesai.');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
 
-        // Jalankan import
-        $import = new EmployeeUserImport;
-        Excel::import($import, $file);
+            // Menangkap error validasi Excel
+            $failures = $e->failures();
+            $messages = collect($failures)->map(function ($failure) {
+                return "Baris {$failure->row()}: " . implode(', ', $failure->errors());
+            })->implode(' | ');
 
-        // Ambil hasil dari import class
-        $imported = $import->getImportedCount();
-        $skipped  = $import->getSkippedCount();
-        $errors   = $import->getErrors();
+            return redirect()
+                ->back()
+                ->with('error', "Import gagal karena kesalahan data. Detail: $messages");
+        } catch (\Exception $e) {
 
-        // Selalu kirim session agar bisa ditampilkan di Blade
-        return redirect()
-            ->back()
-            ->with('success', "✅ Import Cabang selesai! Berhasil: $imported, Dilewati: $skipped")
-            ->with('import_errors', $errors);
-
-    } catch (Exception $e) {
-
-        return redirect()
-            ->back()
-            ->with('error', '❌ Import gagal: ' . $e->getMessage());
+            // Menangkap error selain validasi
+            return redirect()
+                ->back()
+                ->with('error', 'Terjadi kesalahan saat import: ' . $e->getMessage());
+        }
     }
-}
 
   public function payrollAm()
     {
         return view('master.import-payroll-am');
     }
 
-    public function importpayrollAm(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls|max:10240'
-        ], [
-            'file.required' => 'File Excel wajib diupload',
-            'file.mimes'    => 'Format harus .xlsx atau .xls',
-            'file.max'      => 'Ukuran file maksimal 10MB',
-        ]);
+  public function importpayrollAm(Request $request)
+{
+    $request->validate([
+        'periode' => 'required|date_format:Y-m',
+        'file'    => 'required|mimes:xlsx,xls|max:10240',
+    ], [
+        'periode.required' => 'Periode wajib dipilih',
+        'periode.date_format' => 'Format periode tidak valid',
+        'file.required' => 'File Excel wajib diupload',
+        'file.mimes'    => 'Format harus .xlsx atau .xls',
+        'file.max'      => 'Ukuran file maksimal 10MB',
+    ]);
 
-        try {
-            $file = $request->file('file');
+    try {
+        $periode = $request->periode; // ✅ dari input month
+        $file    = $request->file('file');
 
-            // ✅ Gunakan PayrollAmImport yang benar
-            $import = new PayrollAmImport;
-            Excel::import($import, $file);
+        // ✅ Inject periode ke Import
+        $import = new PayrollAmImport($periode);
+        Excel::import($import, $file);
 
-            // Ambil hasil dari import class
-            $imported = $import->getImportedCount();
-            $skipped  = $import->getSkippedCount();
-            $errors   = $import->getErrors();
+        return redirect()->back()
+            ->with('success', "✅ Import Payroll AM periode $periode berhasil! 
+                Berhasil: {$import->getImportedCount()}, 
+                Dilewati: {$import->getSkippedCount()}")
+            ->with('import_errors', $import->getErrors());
 
-            // Selalu kirim session agar bisa ditampilkan di Blade
-            return redirect()
-                ->back()
-                ->with('success', "✅ Import Payroll AM selesai! Berhasil: $imported, Dilewati: $skipped")
-                ->with('import_errors', $errors);
-
-        } catch (Exception $e) {
-            return redirect()
-                ->back()
-                ->with('error', '❌ Import gagal: ' . $e->getMessage());
-        }
+    } catch (\Exception $e) {
+        return redirect()->back()
+            ->with('error', '❌ Import gagal: ' . $e->getMessage());
     }
-
+}
 
 
 

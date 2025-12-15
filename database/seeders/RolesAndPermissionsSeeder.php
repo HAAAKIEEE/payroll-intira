@@ -56,22 +56,15 @@ class RolesAndPermissionsSeeder extends Seeder
         // ===========================
         // 2. ROLES
         // ===========================
-        $frontOffice = Role::firstOrCreate(['name' => 'Front Office']);
-        $areaManager  = Role::firstOrCreate(['name' => 'Area Manager']);
-        $headOffice   = Role::firstOrCreate(['name' => 'Head Office']);
-
-
-        $sdm          = Role::firstOrCreate(['name' => 'SDM']);
-        $marketing    = Role::firstOrCreate(['name' => 'Marketing']);
-        $finance    = Role::firstOrCreate(['name' => 'Finance']);
-        $operational  = Role::firstOrCreate(['name' => 'Operational']);
-        $bod          = Role::firstOrCreate(['name' => 'BOD']);
+        $master   = Role::firstOrCreate(['name' => 'Master']);
+        $karyawan = Role::firstOrCreate(['name' => 'Karyawan']);
+       
 
         // ===========================
         // 3. ASSIGN PERMISSIONS
         // ===========================
 
-       $headOffice->givePermissionTo(Permission::all());
+       $master->givePermissionTo(Permission::all());
 
 
     }

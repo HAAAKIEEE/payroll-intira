@@ -10,6 +10,7 @@ class Payroll extends Model
     protected $fillable = [
         'user_branche_id',
         'periode',
+        'golongan',
         'hari_kerja',
 
         // Komponen Gaji
@@ -44,11 +45,6 @@ class Payroll extends Model
     }
 
 
-
-    // public function pieces()
-    // {
-    //     return $this->hasMany(PayrollPiece::class);
-    // }
 
   
   public function pieces()

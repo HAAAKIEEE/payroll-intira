@@ -2,260 +2,116 @@
 
 namespace App\Imports;
 
-use App\Models\Employee;
-use App\Models\User;
 use App\Models\UserBranche;
 use App\Models\PayrollPiece;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
-use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Carbon\Carbon;
 
-class PayrollPieceImport implements ToCollection
+class PayrollPieceImport implements ToCollection, WithHeadingRow
 {
-    private $imported = 0;
-    private $skipped = 0;
-    private $errors = [];
-    private $selectedPeriode;
+    private int $imported = 0;
+    private int $skipped  = 0;
+    private array $errors = [];
+    private string $periode;
 
-    public function __construct($selectedPeriode)
+    public function __construct(string $periode)
     {
-        $this->selectedPeriode = $selectedPeriode;
+        $this->periode = $periode;
     }
 
-    /**
-     * Konversi Excel serial date ke format Y-m-d
-     */
-    private function convertExcelDate($value)
+    public function headingRow(): int
     {
-        if (empty($value)) {
+        return 1;
+    }
+
+    private function normalize($value)
+    {
+        if ($value === null || $value === '-' || $value === '') {
+            return 0;
+        }
+
+        return (float) str_replace([','], '', $value);
+    }
+
+    private function parseTanggal($value)
+    {
+        try {
+            return Carbon::parse($value)->format('Y-m-d');
+        } catch (\Exception $e) {
             return null;
         }
-
-        // Jika sudah berupa string tanggal yang valid
-        if (is_string($value) && !is_numeric($value)) {
-            try {
-                return Carbon::parse($value)->format('Y-m-d');
-            } catch (\Exception $e) {
-                return null;
-            }
-        }
-
-        // Jika berupa Excel serial number
-        if (is_numeric($value)) {
-            try {
-                // Excel date serial number dimulai dari 1900-01-01
-                // Tapi Excel salah menghitung 1900 sebagai leap year
-                // Jadi kita mulai dari 1899-12-30 dan tambah serial number
-                $unixTimestamp = ($value - 25569) * 86400;
-                return Carbon::createFromTimestamp($unixTimestamp)->format('Y-m-d');
-            } catch (\Exception $e) {
-                return null;
-            }
-        }
-
-        return null;
     }
 
     public function collection(Collection $rows)
     {
-        // Lewati header
-        $rows = $rows->skip(1);
-
-        foreach ($rows as $index => $row) {
-            $rowNumber = $index + 2;
+        foreach ($rows as $i => $row) {
+            $rowNumber = $i + 2;
 
             try {
-                // Ambil kolom Excel yg akan di import
-                $tanggalRaw = $row[2] ?? null;
-                $namaExcel = trim($row[3] ?? '');
-                $kesejahteraan = $row[6] ?? 0;
-                $komunikasi = $row[7] ?? 0;
-                $tunjangan = $row[8] ?? 0;
-                $potongan = $row[9] ?? 0;
-                $kategori = trim($row[10] ?? '');
-                $keterangan = trim($row[11] ?? '');
-                $nikExcel = trim($row[13] ?? '');
+                $nama   = trim($row['nama'] ?? '');
+                $cabang = trim($row['cabang'] ?? '');
 
-                // Konversi tanggal Excel
-                $tanggal = $this->convertExcelDate($tanggalRaw);
-
-                // ========================
-                // Validasi NIK dari Excel
-                // ========================
-                if (empty($nikExcel) || $nikExcel == '#N/A' || $nikExcel == '0') {
-                    $this->skipped++;
-                    $this->errors[] = "Baris $rowNumber: NIK tidak valid atau kosong (NIK: '$nikExcel').";
-                    continue;
+                if (!$nama || !$cabang) {
+                    throw new \Exception("Nama atau Cabang kosong");
                 }
 
-                Log::info("Processing baris $rowNumber - NIK Excel: $nikExcel, Nama Excel: $namaExcel");
+                // 🔎 CARI USER + CABANG
+                $userBranche = UserBranche::whereHas('user', fn ($q) =>
+                        $q->whereRaw('LOWER(name) = ?', [strtolower($nama)])
+                    )
+                    ->whereHas('branch', fn ($q) =>
+                        $q->whereRaw('LOWER(name) = ?', [strtolower($cabang)])
+                    )
+                    ->first();
 
-                // ========================
-                // STEP 1: Cari Employee berdasarkan NIK dari Excel
-                // ========================
-                $employee = Employee::where('nik', $nikExcel)->first();
-                
-                if (!$employee) {
-                    $this->skipped++;
-                    $this->errors[] = "Baris $rowNumber: Employee dengan NIK '$nikExcel' tidak ditemukan di tabel employees.";
-                    Log::warning("Employee tidak ditemukan untuk NIK: $nikExcel");
-                    continue;
-                }
-
-                Log::info("Employee ditemukan - ID: {$employee->id}, Nama: {$employee->full_name}, NIK: {$employee->nik}");
-
-                // ========================
-                // STEP 2: Cari User yang terkait dengan Employee ini
-                // ========================
-                $user = User::where('employee_id', $employee->id)->first();
-                
-                if (!$user) {
-                    $this->skipped++;
-                    $this->errors[] = "Baris $rowNumber: Employee dengan NIK '$nikExcel' ({$employee->full_name}) tidak memiliki User account.";
-                    Log::warning("User tidak ditemukan untuk Employee ID: {$employee->id}");
-                    continue;
-                }
-
-                Log::info("User ditemukan - ID: {$user->id}, Username: {$user->username}");
-
-                // ========================
-                // STEP 3: Cari UserBranche untuk user ini
-                // ========================
-                $userBranche = UserBranche::where('user_id', $user->id)->first();
-                
                 if (!$userBranche) {
-                    $this->skipped++;
-                    $this->errors[] = "Baris $rowNumber: User dengan NIK '$nikExcel' ({$employee->full_name}) tidak memiliki data cabang (UserBranche).";
-                    Log::warning("UserBranche tidak ditemukan untuk User ID: {$user->id}");
-                    continue;
+                    throw new \Exception("User '$nama' di cabang '$cabang' tidak ditemukan");
                 }
 
-                Log::info("UserBranche ditemukan - ID: {$userBranche->id}, Branch ID: {$userBranche->branches_id}");
+                $tanggal = $this->parseTanggal($row['tanggal'] ?? null);
 
-                // ========================
-                // STEP 4: VALIDASI ULANG - Pastikan NIK di Employee (via User->Employee) sama dengan NIK Excel
-                // ========================
-                $userEmployee = $user->employee; // Relasi User ke Employee
-                
-                if (!$userEmployee) {
-                    $this->skipped++;
-                    $this->errors[] = "Baris $rowNumber: User ID {$user->id} tidak memiliki relasi Employee yang valid.";
-                    Log::error("User ID {$user->id} tidak memiliki relasi employee");
-                    continue;
+                // 🔁 CEK DUPLIKAT
+                $exists = PayrollPiece::where('user_branche_id', $userBranche->id)
+                    ->where('periode', $this->periode)
+                    ->where('kategori', trim($row['kategori'] ?? ''))
+                    ->where('tanggal', $tanggal)
+                    ->exists();
+
+                if ($exists) {
+                    throw new \Exception("Duplikat data");
                 }
 
-                // Validasi NIK harus sama persis
-                if ($userEmployee->nik !== $nikExcel) {
-                    $this->skipped++;
-                    $this->errors[] = "Baris $rowNumber: NIK tidak cocok! Excel: '$nikExcel' vs Database: '{$userEmployee->nik}'.";
-                    Log::error("NIK mismatch pada baris $rowNumber", [
-                        'nik_excel' => $nikExcel,
-                        'nik_database' => $userEmployee->nik,
-                        'employee_id' => $userEmployee->id,
-                        'user_id' => $user->id,
-                        'user_branche_id' => $userBranche->id
-                    ]);
-                    continue;
-                }
-
-                Log::info("✓ Validasi NIK berhasil - NIK Excel: $nikExcel == NIK Database: {$userEmployee->nik}");
-
-                // ========================
-                // STEP 5: Cek duplikasi 
-                // ========================
-                // STEP 5: Cek duplikasi data
-$duplicate = PayrollPiece::where('user_branche_id', $userBranche->id)
-    ->where('periode', $this->selectedPeriode)
-    ->where('kategori', $kategori)
-    ->where('tanggal', $tanggal)
-    ->where('kesejahteraan', (float)$kesejahteraan)
-    ->where('komunikasi', (float)$komunikasi)
-    ->where('tunjangan', (float)$tunjangan)
-    ->where('potongan', (float)$potongan)
-    ->exists();
-
-if ($duplicate) {
-    $this->skipped++;
-    $this->errors[] = "Baris $rowNumber: SKIP duplikat (Kategori '$kategori', Tanggal '$tanggal')";
-    continue;
-}
-
-
-// STEP 6: Simpan
-PayrollPiece::create([
-    'user_branche_id' => $userBranche->id,
-    'periode' => $this->selectedPeriode,
-    'jabatan' => trim($row[4] ?? '-'),
-    'kesejahteraan' => (float) $kesejahteraan,
-    'komunikasi' => (float) $komunikasi,
-    'tunjangan' => (float) $tunjangan,
-    'potongan' => (float) $potongan,
-    'kategori' => $kategori,
-    'keterangan' => $keterangan ?: null,
-    'tanggal' => $tanggal
-]);
-
-                // ========================
-                // STEP 6: Simpan PayrollPiece
-                // ========================
-                // PayrollPiece::create([
-                //     'user_branche_id' => $userBranche->id,
-                //     'periode' => $this->selectedPeriode,
-                //     'jabatan' => trim($row[4] ?? '-'), // Kolom D (index 3)
-                //     'kesejahteraan' => (float) $kesejahteraan,
-                //     'komunikasi' => (float) $komunikasi,
-                //     'tunjangan' => (float) $tunjangan,
-                //     'potongan' => (float) $potongan,
-                //     'kategori' => $kategori,
-                //     'keterangan' => $keterangan ?: null,
-                //     'tanggal' => $tanggal
-                // ]);
-
-                Log::info("✅ Berhasil import baris $rowNumber", [
-                    'nik' => $nikExcel,
-                    'nama' => $employee->full_name,
-                    'employee_id' => $employee->id,
-                    'user_id' => $user->id,
+                // 💾 SIMPAN
+                PayrollPiece::create([
                     'user_branche_id' => $userBranche->id,
-                    'periode' => $this->selectedPeriode,
-                    'kategori' => $kategori
+                    'periode'        => $this->periode,
+                    'jabatan'        => trim($row['jabatan'] ?? '-'),
+                    'kesejahteraan'  => $this->normalize($row['kesejahteraan'] ?? 0),
+                    'komunikasi'     => $this->normalize($row['komunikasi'] ?? 0),
+                    'tunjangan'      => $this->normalize($row['tunjangan'] ?? 0),
+                    'potongan'       => $this->normalize($row['potongan'] ?? 0),
+                    'kategori'       => trim($row['kategori'] ?? ''),
+                    'keterangan'     => trim($row['keterangan'] ?? null),
+                    'tanggal'        => $tanggal,
                 ]);
 
                 $this->imported++;
 
             } catch (\Exception $e) {
                 $this->skipped++;
-                $this->errors[] = "Baris $rowNumber: Error - " . $e->getMessage();
-                Log::error("Exception pada baris $rowNumber", [
-                    'exception' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
-                    'nik' => $nikExcel ?? 'N/A',
-                    'nama' => $namaExcel ?? 'N/A'
-                ]);
+                $this->errors[] = "Baris $rowNumber: " . $e->getMessage();
             }
         }
 
-        // ========================
-        // Kirim feedback ke session
-        // ========================
-        if ($this->imported > 0) {
-            session()->flash('message', "✅ Berhasil import {$this->imported} data ke periode '{$this->selectedPeriode}'. {$this->skipped} data gagal/dilewati.");
-        } else {
-            session()->flash('error', "❌ Tidak ada data yang berhasil diimport. {$this->skipped} data gagal/dilewati.");
-        }
+        session()->flash(
+            'success',
+            "✅ Import selesai. Berhasil: {$this->imported}, Dilewati: {$this->skipped}"
+        );
 
-        if (!empty($this->errors)) {
-            // Batasi jumlah error yang ditampilkan
-            $errorCount = count($this->errors);
-            $displayErrors = array_slice($this->errors, 0, 30);
-            
-            $errorMessage = implode("\n", $displayErrors);
-            if ($errorCount > 30) {
-                $errorMessage .= "\n\n... dan " . ($errorCount - 30) . " error lainnya. Cek log untuk detail lengkap.";
-            }
-            
-            session()->flash('errors_detail', $errorMessage);
+        if ($this->errors) {
+            session()->flash('errors_import', $this->errors);
         }
     }
 }

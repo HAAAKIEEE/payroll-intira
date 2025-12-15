@@ -40,6 +40,28 @@
         </div>
 
         <form wire:submit.prevent="import" enctype="multipart/form-data" id="importForm">
+            <div
+                class="bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700 p-6 mb-6">
+                <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-2">
+                    Periode Payroll
+                </label>
+
+                <div
+                    class="flex items-center gap-3 border border-zinc-300 dark:border-zinc-600 rounded-lg px-4 py-3 focus-within:ring-2 focus-within:ring-green-500 transition">
+                    <svg class="w-5 h-5 text-zinc-500 dark:text-zinc-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" />
+                    </svg>
+
+                    <input type="month" wire:model.defer="periode" required
+                        class="w-full bg-transparent border-none focus:outline-none text-zinc-800 dark:text-zinc-100">
+                </div>
+
+                @error('periode')
+                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
 
             <div class="border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-lg p-8 text-center hover:border-blue-500 dark:hover:border-blue-500 transition-colors duration-200 mb-6"
                 id="dropZone">

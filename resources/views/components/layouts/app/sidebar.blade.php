@@ -36,38 +36,38 @@
         <flux:spacer />
 
         <flux:navlist variant="outline">
-            @role('Head Office')
-               <flux:navlist.item icon="folder-git-2" href="{{ route('payroll.manage') }}">
-                    {{ __('Payroll Management') }}
-                    </flux:navlist.item>
-                    <flux:navlist.item icon="folder-git-2" href="{{ route('master-data.import-payroll-am.index') }}">
-                        {{ __('Payroll Management Area Manager') }}
-                    </flux:navlist.item>
-                    <flux:navlist.item icon="folder-git-2" href="{{ route('pieces.manage') }}">
-                        {{ __('Payroll Pieces Management') }}
-                    </flux:navlist.item>
-                    <flux:navlist.item icon="folder-git-2" href="{{ route('user.manage') }}">
-                        {{ __('User Management') }}
-                    </flux:navlist.item>
-                    <flux:navlist.item icon="folder-git-2" href="{{ route('branches.manage') }}">
-                        {{ __('Branch Management') }}
-                    </flux:navlist.item>
-                    {{-- =======
-                    <flux:navlist.item icon="folder-git-2" href="{{ route('payroll.manage') }}">
-                        {{ __('Payroll Management') }}
-                    </flux:navlist.item>
-                    <flux:navlist.item icon="folder-git-2" href="{{ route('pieces.manage') }}">
-                        {{ __('Payroll Pieces Management') }}
-                    </flux:navlist.item>
-                    <flux:navlist.item icon="folder-git-2" href="{{ route('user.manage') }}">
-                        {{ __('User Management') }}
-                    </flux:navlist.item>
-                    <flux:navlist.item icon="folder-git-2" href="{{ route('branches.manage') }}">
-                        {{ __('Branch Management') }}
-                    </flux:navlist.item>
-                    >>>>>>> Stashed changes --}}
-                @endrole
-                {{-- <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit"
+            @role('Master')
+            <flux:navlist.item icon="folder-git-2" href="{{ route('payroll.manage') }}">
+                {{ __('Payroll Management') }}
+            </flux:navlist.item>
+            <flux:navlist.item icon="folder-git-2" href="{{ route('master-data.import-payroll-am.index') }}">
+                {{ __('Payroll Management Area Manager') }}
+            </flux:navlist.item>
+            <flux:navlist.item icon="folder-git-2" href="{{ route('pieces.manage') }}">
+                {{ __('Payroll Pieces Management') }}
+            </flux:navlist.item>
+            <flux:navlist.item icon="folder-git-2" href="{{ route('user.manage') }}">
+                {{ __('User Management') }}
+            </flux:navlist.item>
+            <flux:navlist.item icon="folder-git-2" href="{{ route('branches.manage') }}">
+                {{ __('Branch Management') }}
+            </flux:navlist.item>
+            {{-- =======
+            <flux:navlist.item icon="folder-git-2" href="{{ route('payroll.manage') }}">
+                {{ __('Payroll Management') }}
+            </flux:navlist.item>
+            <flux:navlist.item icon="folder-git-2" href="{{ route('pieces.manage') }}">
+                {{ __('Payroll Pieces Management') }}
+            </flux:navlist.item>
+            <flux:navlist.item icon="folder-git-2" href="{{ route('user.manage') }}">
+                {{ __('User Management') }}
+            </flux:navlist.item>
+            <flux:navlist.item icon="folder-git-2" href="{{ route('branches.manage') }}">
+                {{ __('Branch Management') }}
+            </flux:navlist.item>
+            >>>>>>> Stashed changes --}}
+            @endrole
+            {{-- <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit"
                 target="_blank">
                 {{ __('Repository') }}
             </flux:navlist.item>

@@ -17,14 +17,14 @@
                 </h2>
             </div>
 
-            <a href="{{ route('download-template') }}"
+            {{-- <a href="{{ route('download-template') }}"
                 class="flex items-center gap-2 px-5 py-2.5 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800 rounded-lg transition">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
                 </svg>
                 <span>Download</span>
-            </a>
+            </a> --}}
 
         </div>
 
@@ -66,6 +66,33 @@
             <form action="{{ route('master-data.import-payroll-am') }}" method="POST" enctype="multipart/form-data"
                 class="space-y-8">
                 @csrf
+               {{-- Pilih Periode --}}
+<div class="space-y-2">
+    <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+        Periode Payroll
+    </label>
+
+    <div
+        class="flex items-center gap-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-3 focus-within:ring-2 focus-within:ring-blue-500 transition">
+        
+        <svg class="w-5 h-5 text-zinc-500 dark:text-zinc-400" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" />
+        </svg>
+
+        <input
+            type="month"
+            name="periode"
+            value="{{ old('periode', now()->format('Y-m')) }}"
+            required
+            class="w-full bg-transparent border-none focus:outline-none text-zinc-800 dark:text-zinc-100">
+    </div>
+
+    @error('periode')
+        <p class="text-red-500 text-sm">{{ $message }}</p>
+    @enderror
+</div>
 
                 {{-- Dropzone --}}
                 <div id="dropZone"

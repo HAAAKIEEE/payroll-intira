@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_branche_id')->constrained('user_branches')->onDelete('cascade');
             $table->string('periode'); // format: YYYY-MM
+            $table->string('golongan'); 
 
             $table->integer('hari_kerja')->default(0);
 

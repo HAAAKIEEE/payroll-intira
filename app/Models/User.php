@@ -24,7 +24,7 @@ class User extends Authenticatable
         'name',
         'username',
         'password',
-        'employee_id'
+        // 'employee_id'
     ];
 
     /**
@@ -63,10 +63,7 @@ class User extends Authenticatable
             ->map(fn($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
-    public function employee()
-    {
-        return $this->belongsTo(Employee::class);
-    }
+   
     public function userBranches()
     {
         return $this->hasMany(UserBranche::class, 'user_id');

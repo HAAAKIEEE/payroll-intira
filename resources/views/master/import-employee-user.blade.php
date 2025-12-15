@@ -12,19 +12,20 @@
                 </p>
             </div>
 
-            <!-- Success -->
-            @if(session('success'))
-                <div class="p-4 rounded-lg bg-green-600 text-white">
-                    {{ session('success') }}
-                </div>
-            @endif
+          
+    {{-- Flash Message --}}
+   @if (session('success'))
+        <div class="px-4 py-3 mb-4 border rounded-lg bg-emerald-100 border-emerald-300 text-emerald-700">
+            {{ session('success') }}
+        </div>
+    @endif
 
-            <!-- Error -->
-            @if(session('error'))
-                <div class="p-4 rounded-lg bg-red-600 text-white">
-                    {{ session('error') }}
-                </div>
-            @endif
+    {{-- ERROR MESSAGE --}}
+    @if (session('error'))
+        <div class="px-4 py-3 mb-4 text-red-700 bg-red-100 border border-red-300 rounded-lg">
+            {{ session('error') }}
+        </div>
+    @endif
 
             <!-- Validation Errors -->
             @if($errors->any())

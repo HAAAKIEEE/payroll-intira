@@ -27,7 +27,7 @@
         </tr>
         <tr class="border-b border-gray-200">
             <td class="font-semibold py-2">GOLONGAN</td>
-            <td class="py-2">: {{ $payroll->userBranche->user->employee->grade ?? '-' }}</td>
+            <td class="py-2">: {{ $payroll->golongan ?? '-' }}</td>
         </tr>
         <tr class="border-b border-gray-200">
             <td class="font-semibold py-2">PERIODE</td>
