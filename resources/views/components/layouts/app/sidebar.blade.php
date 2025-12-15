@@ -34,49 +34,51 @@
         </flux:navlist>
 
         <flux:spacer />
+        @php
+            $masterOpen = request()->routeIs(['payroll.*', 'master-data.import-payroll-am.*', 'pieces.*']);
+        @endphp
 
-        <flux:navlist variant="outline">
-            @role('Master')
-            <flux:navlist.item icon="folder-git-2" href="{{ route('payroll.manage') }}">
-                {{ __('Payroll Management') }}
-            </flux:navlist.item>
-            <flux:navlist.item icon="folder-git-2" href="{{ route('master-data.import-payroll-am.index') }}">
-                {{ __('Payroll Management Area Manager') }}
-            </flux:navlist.item>
-            <flux:navlist.item icon="folder-git-2" href="{{ route('pieces.manage') }}">
-                {{ __('Payroll Pieces Management') }}
-            </flux:navlist.item>
-            <flux:navlist.item icon="folder-git-2" href="{{ route('user.manage') }}">
-                {{ __('User Management') }}
-            </flux:navlist.item>
-            <flux:navlist.item icon="folder-git-2" href="{{ route('branches.manage') }}">
-                {{ __('Branch Management') }}
-            </flux:navlist.item>
-            {{-- =======
-            <flux:navlist.item icon="folder-git-2" href="{{ route('payroll.manage') }}">
-                {{ __('Payroll Management') }}
-            </flux:navlist.item>
-            <flux:navlist.item icon="folder-git-2" href="{{ route('pieces.manage') }}">
-                {{ __('Payroll Pieces Management') }}
-            </flux:navlist.item>
-            <flux:navlist.item icon="folder-git-2" href="{{ route('user.manage') }}">
-                {{ __('User Management') }}
-            </flux:navlist.item>
-            <flux:navlist.item icon="folder-git-2" href="{{ route('branches.manage') }}">
-                {{ __('Branch Management') }}
-            </flux:navlist.item>
-            >>>>>>> Stashed changes --}}
-            @endrole
-            {{-- <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit"
-                target="_blank">
-                {{ __('Repository') }}
-            </flux:navlist.item>
+        <div class="w-full transition-all duration-75">
+            <div class="flex items-center justify-between gap-2 cursor-pointer p-3 rounded border-b-2"
+                onclick="toggleDropdown()">
+                <span>Payroll</span>
+                <svg id="icon-payroll" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                    class="size-5">
+                    <path fill-rule="evenodd"
+                        d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+                        clip-rule="evenodd" />
+                </svg>
 
-            <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire"
-                target="_blank">
-                {{ __('Documentation') }}
-            </flux:navlist.item> --}}
-        </flux:navlist>
+
+            </div>
+            <div id="dropdown-master" style="display: {{ $masterOpen ? 'block' : 'none' }}; padding-left: 20px;">
+                <a href="{{ route('payroll.manage') }}"
+                    class="block py-2 text-sm text-zinc-500 hover:bg-zinc-800/5 hover:text-zinc-800 pl-3  rounded duration-75 my-1 {{ request()->routeIs('payroll.*') ? ' font-semibold' : '' }}">
+                    Management
+                </a>
+
+                <a href="{{ route('master-data.import-payroll-am.index') }}"
+                    class="block py-2 text-sm text-zinc-500 hover:bg-zinc-800/5 hover:text-zinc-800 pl-3  rounded duration-75 my-1 {{ request()->routeIs('master-data.import-payroll-am.*') ? ' font-semibold' : '' }}">
+                    Management Area Manager
+                </a>
+
+                <a href="{{ route('pieces.manage') }}"
+                    class="block py-2 text-sm text-zinc-500 hover:bg-zinc-800/5 hover:text-zinc-800 pl-3  rounded duration-75 my-1 {{ request()->routeIs('pieces.*') ? ' font-semibold' : '' }}">
+                    Pieces Management
+                </a>
+            </div>
+
+
+        </div>
+
+
+
+        <flux:navlist.item href="{{ route('user.manage') }}">
+            {{ __('User Management') }}
+        </flux:navlist.item>
+        <flux:navlist.item href="{{ route('branches.manage') }}">
+            {{ __('Branch Management') }}
+        </flux:navlist.item>
 
         <!-- Desktop User Menu -->
         <flux:dropdown class="hidden lg:block" position="bottom" align="start">
@@ -171,6 +173,21 @@
     {{ $slot }}
 
     @fluxScripts
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdown-master');
+            const icon = document.getElementById('icon-payroll');
+
+            if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+                dropdown.style.display = 'block';
+                icon.classList.add('rotate-180');
+            } else {
+                dropdown.style.display = 'none';
+                icon.classList.remove('rotate-180');
+            }
+        }
+    </script>
+
 </body>
 
 </html>
