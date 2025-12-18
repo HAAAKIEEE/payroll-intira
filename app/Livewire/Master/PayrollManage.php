@@ -55,6 +55,12 @@ class PayrollManage extends Component
         }
     }
 
+    public function downloadTemplateImportPayroll()
+{
+    $this->dispatch('download-payroll-template');
+}
+
+
     public function render()
     {
         return view('livewire.master.payroll-manage');

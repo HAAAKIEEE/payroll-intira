@@ -35,17 +35,33 @@ Route::middleware(['auth'])->group(function () {
         ->name('master-data.import-branch.index')->middleware('can:branches:import');
     Route::post('/master-data/import-branch', [MasterDataImportController::class, 'importBranch'])
         ->name('master-data.import')->middleware('can:branches:import');
-// halaman inport employee user
+    Route::get(
+        '/master-data/download-template-branch',
+        [MasterDataImportController::class, 'downloadTemplateImportBranch']
+    )->name('download-template-branch')
+        ->middleware('can:users:import');
+    // halaman inport employee user
     Route::get('/master-data/import-employee-user', [MasterDataImportController::class, 'indexEmployeeUser'])
         ->name('master-data.import-employee-user.index')->middleware('can:users:import');
 
     Route::post('/master-data/import-employee-user', [MasterDataImportController::class, 'importEmployeeUser'])
         ->name('master-data.import-employee-user')->middleware('can:users:import');
-// import payroll am
+    
+     Route::get(
+        '/master-data/download-template-user',
+        [MasterDataImportController::class, 'downloadTemplateImportUser']
+    )->name('download-template-user')
+        ->middleware('can:users:import');
+        // import payroll am
     Route::get('/master-data/import-payroll-am', [MasterDataImportController::class, 'payrollAm'])
         ->name('master-data.import-payroll-am.index')->middleware('can:branches:import');
     Route::post('/master-data/import-payroll-am', [MasterDataImportController::class, 'importpayrollAm'])
         ->name('master-data.import-payroll-am')->middleware('can:users:import');
+    Route::get(
+        '/master-data/download-template-payroll-am',
+        [MasterDataImportController::class, 'downloadTemplateImportPayrollAm']
+    )->name('download-template-payroll-am')
+        ->middleware('can:users:import');
 
 
     Route::redirect('settings', 'settings/profile');

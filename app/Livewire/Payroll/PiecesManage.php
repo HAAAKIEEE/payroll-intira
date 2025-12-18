@@ -62,7 +62,10 @@ class PiecesManage extends Component
             session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
-
+  public function downloadTemplateImportPayroll()
+{
+    $this->dispatch('download-piece-template');
+}
     public function render()
     {
         return view('livewire.payroll.pieces-manage');

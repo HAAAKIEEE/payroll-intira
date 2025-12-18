@@ -193,9 +193,24 @@ class MasterDataImportController extends Controller
 
 public function downloadTemplateImportPayrollAm()
 {
-    $file = public_path('template/payroll-template.xlsx'); // lokasi file
+    $file = public_path('template/Template-Payroll-Am.xlsx'); // lokasi file
 
-    return response()->download($file, 'payroll-template.xlsx');
+    return response()->download($file, 'payroll-template-am.xlsx');
+}
+
+
+public function downloadTemplateImportBranch()
+{
+    $file = public_path('template/cabang-template.xlsx'); // lokasi file
+
+    return response()->download($file, 'branch-template.xlsx');
+}
+
+public function downloadTemplateImportUser()
+{
+    $file = public_path('template/IDENTITAS_KARYAWAN_PT_SIS_template.xlsx'); // lokasi file
+
+    return response()->download($file, 'user-import-template.xlsx');
 }
 
 }
