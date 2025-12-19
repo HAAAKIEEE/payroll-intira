@@ -83,4 +83,9 @@ class TabelPayroll extends Component
                 ->pluck('periode'),
         ]);
     }
+    public function goToDetail($id)
+{
+    return redirect()->route('payroll.tabel.show', $id);
+}
+
 }

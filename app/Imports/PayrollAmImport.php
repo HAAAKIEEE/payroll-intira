@@ -8,9 +8,11 @@ use App\Models\UserBranche;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
+
 class PayrollAmImport implements ToModel, WithHeadingRow
 {
     protected string $periode;
+    protected int $rowCounter = 1;
 
     protected $errors = [];
     protected $imported = 0;
@@ -29,6 +31,8 @@ class PayrollAmImport implements ToModel, WithHeadingRow
 
     public function model(array $row)
     {
+        $this->rowCounter++;
+        $rowNumber = $this->rowCounter + 1;
         try {
             $col = function ($row, $key) {
                 $clean = fn($str) => strtolower(str_replace([' ', '_'], '', $str));
@@ -43,7 +47,7 @@ class PayrollAmImport implements ToModel, WithHeadingRow
             };
 
             $num = fn($val) =>
-                $val === null || $val === '' ? 0 :
+            $val === null || $val === '' ? 0 :
                 floatval(str_replace(['%', ','], '', $val));
 
             $nama   = trim($col($row, 'nama') ?? '');
@@ -95,11 +99,10 @@ class PayrollAmImport implements ToModel, WithHeadingRow
 
             $this->imported++;
             return $payroll;
-
         } catch (\Exception $e) {
             $this->skipped++;
             $this->errors[] = [
-                'row'    => $row['__row'] ?? 'N/A',
+                'row'    => $rowNumber,
                 'reason' => $e->getMessage(),
                 'data'   => $row,
             ];
@@ -107,7 +110,16 @@ class PayrollAmImport implements ToModel, WithHeadingRow
         }
     }
 
-    public function getImportedCount() { return $this->imported; }
-    public function getSkippedCount()  { return $this->skipped; }
-    public function getErrors()        { return $this->errors; }
+    public function getImportedCount()
+    {
+        return $this->imported;
+    }
+    public function getSkippedCount()
+    {
+        return $this->skipped;
+    }
+    public function getErrors()
+    {
+        return $this->errors;
+    }
 }

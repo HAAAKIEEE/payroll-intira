@@ -9,9 +9,30 @@
         <p class="text-sm text-gray-600">Kota Banjarmasin, Kalimantan Selatan</p>
     </div>
 
+    <!-- Dropdown Pemilihan Periode -->
+    @if (count($availablePeriodes) > 0)
+    <div class="mb-6">
+        <label for="periode" class="block text-sm font-semibold text-gray-700 mb-2">
+            Pilih Periode:
+        </label>
+        <select wire:model.live="selectedPeriode" id="periode" 
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+            <option value="">-- Pilih Periode --</option>
+            @foreach ($availablePeriodes as $periode)
+                <option value="{{ $periode }}">{{ $periode }}</option>
+            @endforeach
+        </select>
+    </div>
+    @endif
+
     @if (!$payroll)
     <div class="p-4 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 rounded">
-        <strong>Perhatian:</strong> Anda belum memiliki payroll bulan ini.
+        <strong>Perhatian:</strong> 
+        @if (count($availablePeriodes) == 0)
+            Anda belum memiliki payroll.
+        @else
+            Tidak ada data payroll untuk periode yang dipilih.
+        @endif
     </div>
     @else
 
@@ -38,8 +59,6 @@
     <hr class="my-4 border-gray-300">
 
     <!-- Rincian Payroll -->
-   
-
     <table class="w-full text-sm">
         <tr class="border-b border-gray-200">
             <td class="py-2 font-semibold text-gray-700">GAJI POKOK</td>
@@ -65,7 +84,7 @@
                 ({{ $payroll->hari_kerja }} HARI)
             </td>
             <td class="text-right py-2 text-gray-800">
-                 {{ number_format($payroll->makan, 0, ',', '.') }}
+                {{ number_format($payroll->makan, 0, ',', '.') }}
             </td>
         </tr>
 
@@ -73,17 +92,15 @@
             <td class="py-2 font-semibold text-green-800">BONUS REVENUE</td>
             <td class="py-2 font-semibold text-green-800">
                 <span class="mr-5">
-
                     {{ number_format($payroll->bonus_revenue, 0, ',', '.') }}
                 </span>
-             @if($payroll->userBranche->branch->name === 'AREA MANAGER')
+                @if($payroll->userBranche->branch->name === 'AREA MANAGER')
                 <span class="mr-5">
                     {{ number_format($payroll->jumlah_cabang_dipegang, 0, ',', '.') }}
                 </span>
-             @else
-                ( {{ rtrim(rtrim(number_format($payroll->revenue_persentase, 2, '.', ''), '0'), '.') }}%
-             )
-@endif
+                @else
+                ( {{ rtrim(rtrim(number_format($payroll->revenue_persentase, 2, '.', ''), '0'), '.') }}% )
+                @endif
             </td>
             <td class="text-right py-2 font-semibold text-green-800">
                 {{ number_format($payroll->total_revenue, 0, ',', '.') }}
@@ -117,20 +134,16 @@
         <tr class="border-b border-gray-200">
             <td class="py-2 font-semibold text-gray-700">KPI</td>
             <td class="py-2 font-semibold text-gray-600">
-                {{-- {{ rtrim(rtrim(number_format($payroll->kpi_persentase, 2, '.', ''), '0'), '.') }}% --}}
-<span class="mr-5">
-    ({{ $payroll->kpi_persentase * 100 }}%)
-
-</span>
-
+                <span class="mr-5">
+                    ({{ $payroll->kpi_persentase * 100 }}%)
+                </span>
                 {{ number_format($payroll->kpi, 0, ',', '.') }}
-
             </td>
-           
             <td class="text-right py-2 text-gray-800">
                 {{ number_format($payroll->total_kpi, 0, ',', '.') }}
             </td>
         </tr>
+
         <tr class="border-t-2 border-gray-400 font-bold text-lg bg-gray-50">
             <td class="py-3 text-gray-800">GRAND TOTAL</td>
             <td></td>
@@ -139,7 +152,6 @@
             </td>
         </tr>
 
-
         <tr class="bg-yellow-300 font-bold text-lg border-2 border-yellow-400">
             <td class="py-3 text-gray-900">TAKE HOME PAY</td>
             <td></td>
@@ -147,9 +159,7 @@
                 {{ number_format($payroll->take_home_pay, 0, ',', '.') }}
             </td>
         </tr>
-
     </table>
-
 
     {{-- Rincian Tunjangan / Potongan Tambahan --}}
     @if ($pieces->count())
@@ -206,7 +216,6 @@
             {{-- Total Row --}}
             <tr class="bg-green-50 font-bold border-t-2 border-green-300">
                 <td class="py-3 px-3 border border-gray-300 text-gray-800"></td>
-
                 <td class="py-3 px-3 border border-gray-300 text-gray-800">TOTAL</td>
                 <td class="py-3 px-3 text-right border border-gray-300 text-gray-800">
                     {{ number_format($totalKesejahteraan, 0, ',', '.') }}
@@ -229,7 +238,6 @@
     <div class="mt-10 text-right">
         <p class="text-gray-700 mb-1">Banjarmasin, {{ now()->isoFormat('D MMMM Y') }}</p>
         <br><br><br>
-        {{-- <img src="/signature.png" class="w-32 mx-auto"> --}}
         <p class="font-semibold text-gray-800">AULIA RISKI YUSPIHANI YUSRAN</p>
         <p class="text-sm text-gray-600">HO SDM</p>
     </div>

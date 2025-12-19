@@ -11,6 +11,9 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 class PayrollsImport implements ToModel, WithHeadingRow
 {
     public array $errors = [];
+      protected $imported = 0;
+    protected $skipped = 0;
+    protected int $rowCounter = 1;
     protected string $periode;
 
     // ✅ terima periode dari Livewire
@@ -26,6 +29,8 @@ class PayrollsImport implements ToModel, WithHeadingRow
 
     public function model(array $row)
     {
+        $this->rowCounter++;
+        $rowNumber = $this->rowCounter + 1;
         try {
             $col = function ($row, $key) {
                 $clean = fn($str) => strtolower(str_replace([' ', '_'], '', $str));
@@ -91,12 +96,24 @@ class PayrollsImport implements ToModel, WithHeadingRow
 
         } catch (\Exception $e) {
             $this->errors[] = [
-                'row'    => $row['__row'] ?? null,
+                'row'    => $rowNumber,
                 'reason' => $e->getMessage(),
                 'data'   => $row,
             ];
             return null;
         }
+    }
+     public function getImportedCount()
+    {
+        return $this->imported;
+    }
+    public function getSkippedCount()
+    {
+        return $this->skipped;
+    }
+    public function getErrors()
+    {
+        return $this->errors;
     }
 }
 

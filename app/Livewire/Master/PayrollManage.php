@@ -40,9 +40,13 @@ class PayrollManage extends Component
                 );
             } else {
                 session()->flash(
-                    'message',
-                    "Payroll periode {$this->periode} berhasil diimport."
+                    'success',
+                    "✅ Import Payroll periode $this->periode berhasil! 
+                Berhasil: {$import->getImportedCount()}, 
+                Dilewati: {$import->getSkippedCount()}"
                 );
+              
+
             }
 
             $this->reset('file');

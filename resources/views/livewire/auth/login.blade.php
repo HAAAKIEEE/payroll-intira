@@ -19,18 +19,7 @@
 
             </div>
 
-            <!-- Footer Links -->
-            {{-- <div class="absolute bottom-8 left-0 right-0 flex justify-center gap-8 text-sm text-green-100">
-                <a href="#" class="hover:text-white transition">CREATED HERE</a>
-                <a href="#" class="hover:text-white transition">COOKIES HERE</a>
-            </div> --}}
-
-            <!-- Wave Divider -->
-            {{-- <svg class="absolute right-0 top-0 h-full w-24 text-white" viewBox="0 0 100 600" preserveAspectRatio="none">
-                <path
-                    d="M0,0 Q25,50 0,100 Q50,150 0,200 Q25,250 0,300 Q50,350 0,400 Q25,450 0,500 Q50,550 0,600 L100,600 L100,0 Z"
-                    fill="currentColor" />
-            </svg> --}}
+         
         </div>
 
         <!-- Right Side - White Form Section -->

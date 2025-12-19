@@ -36,7 +36,7 @@
                 </h4>
             </div>
             <div class="p-5">
-                <ul class="space-y-4">
+                <ul class="space-y-4 max-h-96 overflow-y-auto">
                     @foreach (session('errors_import') as $err)
                     <li class="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg p-4">
                         <div class="flex items-start gap-3 mb-2">

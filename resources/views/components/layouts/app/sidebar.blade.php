@@ -34,8 +34,10 @@
         </flux:navlist>
 
         <flux:spacer />
+        @role('Master')
+            
         @php
-            $masterOpen = request()->routeIs(['payroll.*', 'master-data.import-payroll-am.*', 'pieces.*']);
+        $masterOpen = request()->routeIs(['payroll.*', 'master-data.import-payroll-am.*', 'pieces.*']);
         @endphp
 
         <div class="w-full transition-all duration-75">
@@ -52,11 +54,14 @@
 
             </div>
             <div id="dropdown-master" style="display: {{ $masterOpen ? 'block' : 'none' }}; padding-left: 20px;">
+                <a href="{{ route('payroll.tabel') }}"
+                    class="block py-2 text-sm text-zinc-500 hover:bg-zinc-800/5 hover:text-zinc-800 pl-3  rounded duration-75 my-1 {{ request()->routeIs('payroll.tabel') ? ' font-semibold' : '' }}">
+                    Data Payroll
+                </a>
                 <a href="{{ route('payroll.manage') }}"
-                    class="block py-2 text-sm text-zinc-500 hover:bg-zinc-800/5 hover:text-zinc-800 pl-3  rounded duration-75 my-1 {{ request()->routeIs('payroll.*') ? ' font-semibold' : '' }}">
+                    class="block py-2 text-sm text-zinc-500 hover:bg-zinc-800/5 hover:text-zinc-800 pl-3  rounded duration-75 my-1 {{ request()->routeIs('payroll.manage') ? ' font-semibold' : '' }}">
                     Management
                 </a>
-
                 <a href="{{ route('master-data.import-payroll-am.index') }}"
                     class="block py-2 text-sm text-zinc-500 hover:bg-zinc-800/5 hover:text-zinc-800 pl-3  rounded duration-75 my-1 {{ request()->routeIs('master-data.import-payroll-am.*') ? ' font-semibold' : '' }}">
                     Management Area Manager
@@ -79,6 +84,7 @@
         <flux:navlist.item href="{{ route('branches.manage') }}">
             {{ __('Branch Management') }}
         </flux:navlist.item>
+        @endrole
 
         <!-- Desktop User Menu -->
         <flux:dropdown class="hidden lg:block" position="bottom" align="start">

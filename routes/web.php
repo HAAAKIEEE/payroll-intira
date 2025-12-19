@@ -9,9 +9,9 @@ use App\Livewire\Master\RegionManage;
 use App\Livewire\Master\RolePermissionManagement;
 use App\Livewire\Master\UserEdit;
 use App\Livewire\Master\UserManage;
-use App\Livewire\Payroll\ManagePayroll;
 use App\Livewire\Payroll\PiecesManage;
 use App\Livewire\Payroll\ShowPayroll;
+use App\Livewire\Payroll\TabelPayrollShow;
 use App\Livewire\Payroll\TabelPayroll;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
@@ -20,15 +20,23 @@ use App\Livewire\Settings\TwoFactor;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
+// Route::get('/', function () {
+//     return view('livewire.auth.login');
+// })->name('home');
+
 Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+
     return view('livewire.auth.login');
 })->name('home');
 
-Route::view('dashboard', 'dashboard')
+    Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::middleware(['auth'])->group(function () {
+    Route::middleware(['auth'])->group(function () {
 
     // Halaman form import branch
     Route::get('/master-data/import-branch', [MasterDataImportController::class, 'indexBranch'])
@@ -46,13 +54,13 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/master-data/import-employee-user', [MasterDataImportController::class, 'importEmployeeUser'])
         ->name('master-data.import-employee-user')->middleware('can:users:import');
-    
-     Route::get(
+
+    Route::get(
         '/master-data/download-template-user',
         [MasterDataImportController::class, 'downloadTemplateImportUser']
     )->name('download-template-user')
         ->middleware('can:users:import');
-        // import payroll am
+    // import payroll am
     Route::get('/master-data/import-payroll-am', [MasterDataImportController::class, 'payrollAm'])
         ->name('master-data.import-payroll-am.index')->middleware('can:branches:import');
     Route::post('/master-data/import-payroll-am', [MasterDataImportController::class, 'importpayrollAm'])
@@ -77,8 +85,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/password', action: Password::class)->name('user-password.edit');
     Route::get('/manage-payroll', PayrollManage::class)->name('payroll.manage')->middleware('can:payroll:manage');
     Route::get('/show-payroll', ShowPayroll::class)->name('payroll.show');
+
+    Route::get('/payroll/{payroll}', TabelPayrollShow::class)
+        ->name('payroll.tabel.show');
+
     Route::get('/tabel-payroll', TabelPayroll::class)->name('payroll.tabel');
-    Route::get('/payroll', ManagePayroll::class)->name('payroll.import')->middleware('can:payroll:import');
+    Route::get('/payroll', PayrollManage::class)->name('payroll.import')->middleware('can:payroll:import');
     Route::get('/manage-pieces', PiecesManage::class)->name('pieces.manage')->middleware('can:pieces:manage');
     Route::get('settings/appearance', Appearance::class)->name('appearance.edit');
 
